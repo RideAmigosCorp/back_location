@@ -1,4 +1,4 @@
-name: sharemail_workspace
+name: back_location_workspace
 
 environment:
   sdk: ">=2.18.0 <3.0.0"
