@@ -12,8 +12,7 @@ import 'package:pigeon/pigeon.dart';
       package: 'com.rideamigos.back_location',
       className: 'GeneratedAndroidLocation',
     ),
-    objcHeaderOut: '../back_location_ios/ios/Classes/messages.g.h',
-    objcSourceOut: '../back_location_ios/ios/Classes/messages.g.m',
+    swiftOut: '../back_location_ios/ios/Classes/Messages.swift',
   ),
 )
 class PigeonLocationData {

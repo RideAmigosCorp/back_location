@@ -3,6 +3,8 @@ import Flutter
 import SwiftLocation
 import UIKit
 
+extension FlutterError: Error {}
+
 @UIApplicationMain
 public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIApplicationDelegate {
 
@@ -19,9 +21,9 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     registrar.addApplicationDelegate(self)
   }
 
-  public func getLocationSettings(
-    _ settings: PigeonLocationSettings?,
-    completion: @escaping (PigeonLocationData?, FlutterError?) -> Void
+  func getLocation(
+    settings: PigeonLocationSettings?,
+    completion: @escaping (Result<PigeonLocationData, Error>) -> Void
   ) {
     let currentSettings = SwiftLocationPlugin.locationSettingsToGPSLocationOptions(
       settings ?? globalPigeonLocationSettings)
@@ -29,7 +31,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     if globalPigeonLocationSettings?.ignoreLastKnownPosition == false {
       let lastKnownPosition = SwiftLocation.lastKnownGPSLocation
       if lastKnownPosition != nil {
-        completion(SwiftLocationPlugin.locationToData(lastKnownPosition!), nil)
+        completion(.success(SwiftLocationPlugin.locationToData(lastKnownPosition!)))
         return
       }
     }
@@ -38,33 +40,33 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
       result in  // you can attach one or more subscriptions via `then`.
       switch result {
       case .success(let location):
-        completion(SwiftLocationPlugin.locationToData(location), nil)
+        completion(.success(SwiftLocationPlugin.locationToData(location)))
       case .failure(let error):
         completion(
-          nil,
-          FlutterError(
-            code: "LOCATION_ERROR",
-            message: error.localizedDescription,
-            details: error.recoverySuggestion))
+          .failure(
+            FlutterError(
+              code: "LOCATION_ERROR",
+              message: error.localizedDescription,
+              details: error.recoverySuggestion)))
       }
     }
   }
 
-  static public func locationToData(_ location: CLLocation) -> PigeonLocationData {
-    return PigeonLocationData.make(
-      withLatitude: NSNumber(value: location.coordinate.latitude),
-      longitude: NSNumber(value: location.coordinate.longitude),
-      accuracy: NSNumber(value: location.horizontalAccuracy),
-      altitude: NSNumber(value: location.altitude),
-      bearing: NSNumber(value: location.course),
-      bearingAccuracyDegrees: NSNumber(value: location.courseAccuracy),
+  static func locationToData(_ location: CLLocation) -> PigeonLocationData {
+      return PigeonLocationData(
+      latitude:  location.coordinate.latitude,
+      longitude:location.coordinate.longitude,
+      accuracy: location.horizontalAccuracy,
+      altitude: location.altitude,
+      bearing: location.course,
+      bearingAccuracyDegrees: location.courseAccuracy,
       elapsedRealTimeNanos: nil,
       elapsedRealTimeUncertaintyNanos: nil,
       satellites: nil,
-      speed: NSNumber(value: location.speed),
-      speedAccuracy: NSNumber(value: location.speedAccuracy),
-      time: NSNumber(value: location.timestamp.timeIntervalSince1970),
-      verticalAccuracy: NSNumber(value: location.verticalAccuracy),
+      speed: location.speed,
+      speedAccuracy: location.speedAccuracy,
+      time: location.timestamp.timeIntervalSince1970,
+      verticalAccuracy: location.verticalAccuracy,
       isMock: false)
 
   }
@@ -96,7 +98,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     }
   }
 
-  static public func locationSettingsToGPSLocationOptions(_ settings: PigeonLocationSettings?)
+  static func locationSettingsToGPSLocationOptions(_ settings: PigeonLocationSettings?)
     -> GPSLocationOptions?
   {
     if settings == nil {
@@ -111,51 +113,43 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     options.activityType = .automotiveNavigation
     options.subscription = .single
     options.avoidRequestAuthorization = true
-      
+
     if minTimeInterval != nil {
-      options.minTimeInterval = Double(Int(truncating: minTimeInterval!) / 1000)
+      options.minTimeInterval = Double(minTimeInterval! / 1000)
     }
 
     if accuracy != nil {
       options.accuracy = mapAccuracy(accuracy!)
     }
 
-    
     if minDistance != nil {
-      options.minDistance = Double(truncating: minDistance!)
+      options.minDistance = minDistance!
     }
 
     return options
   }
 
-  public func setLocationSettingsSettings(
-    _ settings: PigeonLocationSettings, error: AutoreleasingUnsafeMutablePointer<FlutterError?>
-  ) -> NSNumber? {
+  func setLocationSettings(settings: PigeonLocationSettings) throws -> Bool {
     globalPigeonLocationSettings = settings
 
-    return NSNumber(true)
+    return true
   }
-
 
   // Not applicable to iOS
-  public func changeNotificationSettingsSettings(
-    _ settings: PigeonNotificationSettings, error: AutoreleasingUnsafeMutablePointer<FlutterError?>
-  ) -> NSNumber? {
-    return NSNumber(true)
+  func changeNotificationSettings(settings: PigeonNotificationSettings) throws -> Bool {
+    return true
   }
 
-  public func setBackgroundActivatedActivated(
-    _ activated: NSNumber, error: AutoreleasingUnsafeMutablePointer<FlutterError?>
-  ) -> NSNumber? {
-    SwiftLocation.allowsBackgroundLocationUpdates = activated.boolValue
-    return NSNumber(true)
+  func setBackgroundActivated(activated: Bool) throws -> Bool {
+    SwiftLocation.allowsBackgroundLocationUpdates = activated
+    return true
   }
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let messenger: FlutterBinaryMessenger = registrar.messenger()
     let api: LocationHostApi & NSObjectProtocol = SwiftLocationPlugin.init(messenger, registrar)
 
-    LocationHostApiSetup(messenger, api)
+    LocationHostApiSetup.setUp(binaryMessenger: messenger, api: api)
   }
 
   @nonobjc public func application(
