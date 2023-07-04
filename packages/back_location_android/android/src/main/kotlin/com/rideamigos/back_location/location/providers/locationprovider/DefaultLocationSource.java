@@ -1,9 +1,14 @@
 package com.rideamigos.back_location.location.providers.locationprovider;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+
+import androidx.core.app.ActivityCompat;
 
 import com.rideamigos.back_location.location.helper.UpdateRequest;
 import com.rideamigos.back_location.location.helper.continuoustask.ContinuousTask;
@@ -32,6 +37,7 @@ class DefaultLocationSource {
         return locationManager.isProviderEnabled(provider);
     }
 
+    @SuppressLint("MissingPermission")
     @SuppressWarnings("ResourceType")
     Location getLastKnownLocation(String provider) {
         return locationManager.getLastKnownLocation(provider);

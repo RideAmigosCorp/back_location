@@ -30,6 +30,11 @@ Stream<LocationData> onLocationChanged({bool inBackground = false}) {
 /// Update global location settings.
 /// The settings are a passthrough to the [LocationSettings] class.
 Future<void> setLocationSettings({
+  /// If set to true, the app will request Google Play Services
+  /// to request location.
+  /// If not available on the device, the app will fallback to GPS.
+  bool askForGooglePlayServices = false,
+
   /// If set to true, the app will use Google Play Services to request location.
   /// If not available on the device, the app will fallback to GPS.
   /// Only valid on Android.
@@ -47,10 +52,6 @@ Future<void> setLocationSettings({
   /// The duration of the location request.
   /// Only valid on Android.
   double? expirationDuration,
-
-  /// The expiration time of the location request.
-  /// Only valid on Android.
-  double? expirationTime,
 
   /// The fastest interval between location updates.
   /// In milliseconds.
@@ -89,7 +90,6 @@ Future<void> setLocationSettings({
       fallbackToGPS: fallbackToGPS,
       ignoreLastKnownPosition: ignoreLastKnownPosition,
       expirationDuration: expirationDuration,
-      expirationTime: expirationTime,
       fastestInterval: fastestInterval,
       interval: interval,
       maxWaitTime: maxWaitTime,

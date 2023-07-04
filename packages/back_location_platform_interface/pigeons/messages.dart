@@ -6,12 +6,8 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     dartOut: 'lib/src/messages.pigeon.dart',
     dartTestOut: 'test/test.pigeon.dart',
-    javaOut:
-        '../back_location_android/android/src/main/java/com/rideamigos/location/GeneratedAndroidLocation.java',
-    javaOptions: JavaOptions(
-      package: 'com.rideamigos.back_location',
-      className: 'GeneratedAndroidLocation',
-    ),
+    kotlinOut:
+        '../back_location_android/android/src/main/kotlin/com/rideamigos/back_location/GeneratedAndroidLocation.kt',
     swiftOut: '../back_location_ios/ios/Classes/Messages.swift',
   ),
 )
@@ -46,11 +42,11 @@ enum PigeonLocationAccuracy { powerSave, low, balanced, high, navigation }
 
 class PigeonLocationSettings {
   PigeonLocationSettings({
+    this.askForGooglePlayServices = false,
     this.useGooglePlayServices = true,
     this.fallbackToGPS = true,
     this.ignoreLastKnownPosition = false,
     this.expirationDuration,
-    this.expirationTime,
     this.fastestInterval = 500,
     this.interval = 1000,
     this.maxWaitTime,
@@ -61,11 +57,11 @@ class PigeonLocationSettings {
     this.waitForAccurateLocation = true,
   });
 
+  bool askForGooglePlayServices;
   bool useGooglePlayServices;
   bool fallbackToGPS;
   bool ignoreLastKnownPosition;
   double? expirationDuration;
-  double? expirationTime;
   double fastestInterval;
   double interval;
   double? maxWaitTime;

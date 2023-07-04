@@ -5,7 +5,7 @@ import androidx.annotation.IntDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-@IntDef({FailType.UNKNOWN, FailType.TIMEOUT, FailType.PERMISSION_DENIED, FailType.NETWORK_NOT_AVAILABLE,
+@IntDef({FailType.UNKNOWN, FailType.TIMEOUT, FailType.NETWORK_NOT_AVAILABLE,
       FailType.GOOGLE_PLAY_SERVICES_NOT_AVAILABLE,
       FailType.GOOGLE_PLAY_SERVICES_SETTINGS_DIALOG, FailType.GOOGLE_PLAY_SERVICES_SETTINGS_DENIED,
       FailType.VIEW_DETACHED, FailType.VIEW_NOT_REQUIRED_TYPE})
@@ -14,7 +14,6 @@ public @interface FailType {
 
     int UNKNOWN = -1;
     int TIMEOUT = 1;
-    int PERMISSION_DENIED = 2;
     int NETWORK_NOT_AVAILABLE = 3;
     int GOOGLE_PLAY_SERVICES_NOT_AVAILABLE = 4;
     int GOOGLE_PLAY_SERVICES_SETTINGS_DIALOG = 6;

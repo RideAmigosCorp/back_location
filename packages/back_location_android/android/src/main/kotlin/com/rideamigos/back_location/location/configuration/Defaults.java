@@ -1,8 +1,7 @@
 package com.rideamigos.back_location.location.configuration;
 
-import android.Manifest;
-
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.Priority;
 
 public final class Defaults {
 
@@ -20,25 +19,20 @@ public final class Defaults {
     static final boolean KEEP_TRACKING = false;
     static final boolean FALLBACK_TO_DEFAULT = true;
     static final boolean ASK_FOR_GP_SERVICES = false;
-    static final boolean ASK_FOR_SETTINGS_API = true;
-    static final boolean FAIL_ON_SETTINGS_API_SUSPENDED = false;
     static final boolean IGNORE_LAST_KNOW_LOCATION = false;
 
     static final String EMPTY_STRING = "";
-    public static final String[] LOCATION_PERMISSIONS = new String[] { Manifest.permission.ACCESS_COARSE_LOCATION,
-          Manifest.permission.ACCESS_FINE_LOCATION };
 
-    private static final int LOCATION_PRIORITY = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+    private static final int LOCATION_PRIORITY =  Priority.PRIORITY_BALANCED_POWER_ACCURACY;
     private static final int LOCATION_FASTEST_INTERVAL = MINUTE;
 
     /**
      * https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest
      */
     public static LocationRequest createDefaultLocationRequest() {
-        return LocationRequest.create()
-              .setPriority(Defaults.LOCATION_PRIORITY)
-              .setInterval(Defaults.LOCATION_INTERVAL)
-              .setFastestInterval(Defaults.LOCATION_FASTEST_INTERVAL);
+        LocationRequest.Builder locationRequestBuilder = new LocationRequest.Builder(Defaults.LOCATION_INTERVAL).setPriority(Defaults.LOCATION_PRIORITY).setMinUpdateIntervalMillis(Defaults.LOCATION_FASTEST_INTERVAL);
+
+        return locationRequestBuilder.build();
     }
 
     private Defaults() {

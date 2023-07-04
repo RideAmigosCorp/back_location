@@ -155,11 +155,11 @@ class PigeonNotificationSettings {
 
 class PigeonLocationSettings {
   PigeonLocationSettings({
+    required this.askForGooglePlayServices,
     required this.useGooglePlayServices,
     required this.fallbackToGPS,
     required this.ignoreLastKnownPosition,
     this.expirationDuration,
-    this.expirationTime,
     required this.fastestInterval,
     required this.interval,
     this.maxWaitTime,
@@ -170,6 +170,8 @@ class PigeonLocationSettings {
     this.acceptableAccuracy,
   });
 
+  bool askForGooglePlayServices;
+
   bool useGooglePlayServices;
 
   bool fallbackToGPS;
@@ -177,8 +179,6 @@ class PigeonLocationSettings {
   bool ignoreLastKnownPosition;
 
   double? expirationDuration;
-
-  double? expirationTime;
 
   double fastestInterval;
 
@@ -198,11 +198,11 @@ class PigeonLocationSettings {
 
   Object encode() {
     return <Object?>[
+      askForGooglePlayServices,
       useGooglePlayServices,
       fallbackToGPS,
       ignoreLastKnownPosition,
       expirationDuration,
-      expirationTime,
       fastestInterval,
       interval,
       maxWaitTime,
@@ -217,11 +217,11 @@ class PigeonLocationSettings {
   static PigeonLocationSettings decode(Object result) {
     result as List<Object?>;
     return PigeonLocationSettings(
-      useGooglePlayServices: result[0]! as bool,
-      fallbackToGPS: result[1]! as bool,
-      ignoreLastKnownPosition: result[2]! as bool,
-      expirationDuration: result[3] as double?,
-      expirationTime: result[4] as double?,
+      askForGooglePlayServices: result[0]! as bool,
+      useGooglePlayServices: result[1]! as bool,
+      fallbackToGPS: result[2]! as bool,
+      ignoreLastKnownPosition: result[3]! as bool,
+      expirationDuration: result[4] as double?,
       fastestInterval: result[5]! as double,
       interval: result[6]! as double,
       maxWaitTime: result[7] as double?,

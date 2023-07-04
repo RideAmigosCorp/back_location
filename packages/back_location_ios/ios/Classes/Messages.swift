@@ -156,11 +156,11 @@ struct PigeonNotificationSettings {
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct PigeonLocationSettings {
+  var askForGooglePlayServices: Bool
   var useGooglePlayServices: Bool
   var fallbackToGPS: Bool
   var ignoreLastKnownPosition: Bool
   var expirationDuration: Double? = nil
-  var expirationTime: Double? = nil
   var fastestInterval: Double
   var interval: Double
   var maxWaitTime: Double? = nil
@@ -171,11 +171,11 @@ struct PigeonLocationSettings {
   var acceptableAccuracy: Double? = nil
 
   static func fromList(_ list: [Any?]) -> PigeonLocationSettings? {
-    let useGooglePlayServices = list[0] as! Bool
-    let fallbackToGPS = list[1] as! Bool
-    let ignoreLastKnownPosition = list[2] as! Bool
-    let expirationDuration: Double? = nilOrValue(list[3])
-    let expirationTime: Double? = nilOrValue(list[4])
+    let askForGooglePlayServices = list[0] as! Bool
+    let useGooglePlayServices = list[1] as! Bool
+    let fallbackToGPS = list[2] as! Bool
+    let ignoreLastKnownPosition = list[3] as! Bool
+    let expirationDuration: Double? = nilOrValue(list[4])
     let fastestInterval = list[5] as! Double
     let interval = list[6] as! Double
     let maxWaitTime: Double? = nilOrValue(list[7])
@@ -186,11 +186,11 @@ struct PigeonLocationSettings {
     let acceptableAccuracy: Double? = nilOrValue(list[12])
 
     return PigeonLocationSettings(
+      askForGooglePlayServices: askForGooglePlayServices,
       useGooglePlayServices: useGooglePlayServices,
       fallbackToGPS: fallbackToGPS,
       ignoreLastKnownPosition: ignoreLastKnownPosition,
       expirationDuration: expirationDuration,
-      expirationTime: expirationTime,
       fastestInterval: fastestInterval,
       interval: interval,
       maxWaitTime: maxWaitTime,
@@ -203,11 +203,11 @@ struct PigeonLocationSettings {
   }
   func toList() -> [Any?] {
     return [
+      askForGooglePlayServices,
       useGooglePlayServices,
       fallbackToGPS,
       ignoreLastKnownPosition,
       expirationDuration,
-      expirationTime,
       fastestInterval,
       interval,
       maxWaitTime,

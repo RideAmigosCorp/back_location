@@ -1,23 +1,19 @@
 package com.rideamigos.back_location
 
-import android.Manifest
 import android.app.Activity
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import com.rideamigos.back_location.location.LocationManager
 import com.rideamigos.back_location.location.configuration.DefaultProviderConfiguration
 import com.rideamigos.back_location.location.configuration.GooglePlayServicesConfiguration
 import com.rideamigos.back_location.location.configuration.LocationConfiguration
-import com.rideamigos.back_location.location.configuration.PermissionConfiguration
 import io.flutter.plugin.common.PluginRegistry
 
 
 class FlutterLocationService() : Service(),
-    PluginRegistry.RequestPermissionsResultListener,
     PluginRegistry.ActivityResultListener {
     companion object {
         private const val TAG = "FlutterLocationService"
@@ -34,8 +30,7 @@ class FlutterLocationService() : Service(),
 
     private var backgroundNotification: BackgroundNotification? = null
 
-    var locationManager: LocationManager? = null
-        private set
+    private var locationManager: LocationManager? = null
 
     // Store result until a permission check is resolved
     public var activity: Activity? = null
@@ -85,22 +80,6 @@ class FlutterLocationService() : Service(),
             val locationConfiguration =
                 LocationConfiguration.Builder()
                     .keepTracking(true)
-                    .askForPermission(
-                        PermissionConfiguration.Builder()
-                            .requiredPermissions(
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    arrayOf(
-                                        Manifest.permission.ACCESS_FINE_LOCATION,
-                                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                                    )
-                                } else {
-                                    arrayOf(
-                                        Manifest.permission.ACCESS_FINE_LOCATION,
-                                    )
-                                }
-                            )
-                            .build()
-                    )
                     .useGooglePlayServices(GooglePlayServicesConfiguration.Builder().build())
                     .useDefaultProviders(DefaultProviderConfiguration.Builder().build())
                     .build()
@@ -111,7 +90,6 @@ class FlutterLocationService() : Service(),
                 .build()
 
             locationManager?.get()
-
 
             val notification = backgroundNotification!!.build()
             startForeground(ONGOING_NOTIFICATION_ID, notification)
@@ -145,12 +123,4 @@ class FlutterLocationService() : Service(),
         return true
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ): Boolean {
-        locationManager?.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        return true
-    }
 }

@@ -2,41 +2,22 @@ package com.rideamigos.back_location.location.configuration;
 
 import androidx.annotation.Nullable;
 
-import com.rideamigos.back_location.location.configuration.DefaultProviderConfiguration;
-import com.rideamigos.back_location.location.configuration.Defaults;
-import com.rideamigos.back_location.location.configuration.GooglePlayServicesConfiguration;
-import com.rideamigos.back_location.location.configuration.PermissionConfiguration;
-import com.rideamigos.back_location.location.providers.permissionprovider.StubPermissionProvider;
-
 public class LocationConfiguration {
 
     private final boolean keepTracking;
-    private final PermissionConfiguration permissionConfiguration;
     private final GooglePlayServicesConfiguration googlePlayServicesConfiguration;
     private final DefaultProviderConfiguration defaultProviderConfiguration;
 
     private LocationConfiguration(Builder builder) {
         this.keepTracking = builder.keepTracking;
-        this.permissionConfiguration = builder.permissionConfiguration;
         this.googlePlayServicesConfiguration = builder.googlePlayServicesConfiguration;
         this.defaultProviderConfiguration = builder.defaultProviderConfiguration;
     }
 
-    public Builder newBuilder() {
-        return new Builder()
-              .keepTracking(keepTracking)
-              .askForPermission(permissionConfiguration)
-              .useGooglePlayServices(googlePlayServicesConfiguration)
-              .useDefaultProviders(defaultProviderConfiguration);
-    }
 
     // region Getters
     public boolean keepTracking() {
         return keepTracking;
-    }
-
-    public PermissionConfiguration permissionConfiguration() {
-        return permissionConfiguration;
     }
 
     @Nullable
@@ -44,7 +25,8 @@ public class LocationConfiguration {
         return googlePlayServicesConfiguration;
     }
 
-    @Nullable public DefaultProviderConfiguration defaultProviderConfiguration() {
+    @Nullable
+    public DefaultProviderConfiguration defaultProviderConfiguration() {
         return defaultProviderConfiguration;
     }
     // endregion
@@ -52,7 +34,6 @@ public class LocationConfiguration {
     public static class Builder {
 
         private boolean keepTracking = com.rideamigos.back_location.location.configuration.Defaults.KEEP_TRACKING;
-        private PermissionConfiguration permissionConfiguration;
         private GooglePlayServicesConfiguration googlePlayServicesConfiguration;
         private DefaultProviderConfiguration defaultProviderConfiguration;
 
@@ -63,17 +44,6 @@ public class LocationConfiguration {
          */
         public Builder keepTracking(boolean keepTracking) {
             this.keepTracking = keepTracking;
-            return this;
-        }
-
-        /**
-         * This configuration is required in order to configure Permission Request process.
-         * If this is not set, then no permission will be requested from user and
-         * if {@linkplain Defaults#LOCATION_PERMISSIONS} permissions are not granted already,
-         * then getting location will fail silently.
-         */
-        public Builder askForPermission(PermissionConfiguration permissionConfiguration) {
-            this.permissionConfiguration = permissionConfiguration;
             return this;
         }
 
@@ -98,14 +68,9 @@ public class LocationConfiguration {
         public LocationConfiguration build() {
             if (googlePlayServicesConfiguration == null && defaultProviderConfiguration == null) {
                 throw new IllegalStateException("You need to specify one of the provider configurations."
-                      + " Please see GooglePlayServicesConfiguration and DefaultProviderConfiguration");
+                        + " Please see GooglePlayServicesConfiguration and DefaultProviderConfiguration");
             }
 
-            if (permissionConfiguration == null) {
-                permissionConfiguration = new PermissionConfiguration.Builder()
-                      .permissionProvider(new StubPermissionProvider())
-                      .build();
-            }
 
             return new LocationConfiguration(this);
         }

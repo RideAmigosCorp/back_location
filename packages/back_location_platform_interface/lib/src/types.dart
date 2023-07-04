@@ -160,11 +160,11 @@ extension LocationAccuracyExtension on LocationAccuracy {
 class LocationSettings {
   /// {@macro location_settings}
   LocationSettings({
+    this.askForGooglePlayServices = true,
     this.useGooglePlayServices = true,
     this.fallbackToGPS = true,
     this.ignoreLastKnownPosition = false,
     this.expirationDuration,
-    this.expirationTime,
     this.fastestInterval = 500,
     this.interval = 1000,
     this.maxWaitTime,
@@ -174,6 +174,11 @@ class LocationSettings {
     this.smallestDisplacement = 0,
     this.waitForAccurateLocation = true,
   });
+
+  /// If set to true, the app will request Google Play Services
+  /// to request location.
+  /// If not available on the device, the app will fallback to GPS.
+  bool askForGooglePlayServices = false;
 
   /// If set to true, the app will use Google Play Services to request location.
   /// If not available on the device, the app will fallback to GPS.
@@ -192,10 +197,6 @@ class LocationSettings {
   /// The duration of the location request.
   /// Only valid on Android.
   double? expirationDuration;
-
-  /// The expiration time of the location request.
-  /// Only valid on Android.
-  double? expirationTime;
 
   /// The fastest interval between location updates.
   /// In milliseconds.
@@ -231,11 +232,11 @@ class LocationSettings {
   /// Converts to the Pigeon equivalent.
   PigeonLocationSettings toPigeon() {
     return PigeonLocationSettings(
+      askForGooglePlayServices: askForGooglePlayServices,
       useGooglePlayServices: useGooglePlayServices,
       fallbackToGPS: fallbackToGPS,
       ignoreLastKnownPosition: ignoreLastKnownPosition,
       expirationDuration: expirationDuration,
-      expirationTime: expirationTime,
       fastestInterval: fastestInterval,
       interval: interval,
       maxWaitTime: maxWaitTime,

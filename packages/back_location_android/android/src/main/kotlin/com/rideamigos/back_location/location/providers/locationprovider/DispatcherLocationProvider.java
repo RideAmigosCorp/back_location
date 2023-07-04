@@ -72,12 +72,6 @@ public class DispatcherLocationProvider extends com.rideamigos.back_location.loc
         return activeProvider != null && activeProvider.isWaiting();
     }
 
-    @Override
-    public boolean isDialogShowing() {
-        boolean gpServicesDialogShown = gpServicesDialog != null && gpServicesDialog.isShowing();
-        boolean anyProviderDialogShown = activeProvider != null && activeProvider.isDialogShowing();
-        return gpServicesDialogShown || anyProviderDialogShown;
-    }
 
     @Override
     public void runScheduledTask(@NonNull String taskId) {
