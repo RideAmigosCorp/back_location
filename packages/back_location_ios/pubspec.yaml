@@ -21,7 +21,7 @@ dependencies:
   back_location_platform_interface:
     git:
       url: https://github.com/RideAmigosCorp/back_location.git
-      path: packages/back_location_ios/
+      path: packages/back_location_platform_interface/
       ref: main
 
 dev_dependencies:
