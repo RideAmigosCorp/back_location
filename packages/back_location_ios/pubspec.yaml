@@ -1,0 +1,25 @@
+name: back_location_ios
+description: iOS implementation of the location plugin
+version: 1.0.0
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+flutter:
+  plugin:
+    implements: back_location
+    platforms:
+      ios:
+        pluginClass: SwiftLocationPlugin
+        dartPluginClass: BackLocationIOS
+
+dependencies:
+  flutter:
+    sdk: flutter
+  back_location_platform_interface: ^1.0.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  plugin_platform_interface: ^2.0.0
+  very_good_analysis: ^5.0.0+1

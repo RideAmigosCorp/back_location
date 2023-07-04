@@ -1,0 +1,22 @@
+name: back_location_example
+description: Demonstrates how to use the location plugin.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  back_location:
+    path: ../
+  flutter:
+    sdk: flutter
+  permission_handler: ^10.4.1
+
+dev_dependencies:
+  mocktail: ^0.3.0
+  very_good_analysis: ^5.0.0+1
+
+flutter:
+  uses-material-design: true

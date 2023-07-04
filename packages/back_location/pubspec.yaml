@@ -1,0 +1,39 @@
+name: back_location
+description: This librarie aims at providing you a simple way to get the user
+  location without thinking about permission.
+homepage: https://docs.page/Lyokone/flutterlocation
+repository: https://github.com/Lyokone/flutterlocation
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        default_package: back_location_android
+      ios:
+        default_package: back_location_ios
+
+dependencies:
+  back_location_android: ^1.0.0
+  back_location_ios: ^1.0.0
+  back_location_platform_interface: ^1.0.0
+  # back_location_android:
+  #   path: "../back_location_android"
+  # back_location_ios:
+  #   path: "../back_location_ios"
+  # back_location_platform_interface:
+  #   path: "../back_location_platform_interface"
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^0.3.0
+  plugin_platform_interface: ^2.0.0
+  very_good_analysis: ^3.0.0
