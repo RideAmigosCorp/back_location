@@ -1,5 +1,5 @@
 name: back_location_ios
-description: iOS implementation of the location plugin
+description: iOS implementation of the back_location plugin
 version: 1.0.0
 publish_to: none
 
@@ -13,7 +13,6 @@ flutter:
     platforms:
       ios:
         pluginClass: SwiftLocationPlugin
-        dartPluginClass: BackLocationIOS
 
 dependencies:
   flutter:

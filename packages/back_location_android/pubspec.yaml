@@ -14,7 +14,6 @@ flutter:
       android:
         package: com.rideamigos.back_location
         pluginClass: LocationPlugin
-        dartPluginClass: BackLocationAndroid
 
 dependencies:
   flutter:

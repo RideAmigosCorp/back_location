@@ -1,6 +1,5 @@
 name: back_location
-description: This librarie aims at providing you a simple way to get the user
-  location without thinking about permission.
+description: This library aims at providing you a simple way to get the users background location
 version: 1.0.0
 publish_to: none
 
