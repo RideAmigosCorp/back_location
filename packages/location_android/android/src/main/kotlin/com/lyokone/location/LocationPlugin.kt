@@ -16,6 +16,8 @@ import android.util.Log
 import androidx.annotation.NonNull
 import com.google.android.gms.location.LocationRequest
 import com.lyokone.location.FlutterLocationService.LocalBinder
+import com.lyokone.location.GeneratedAndroidLocation.PigeonLocationData
+import com.lyokone.location.GeneratedAndroidLocation.PigeonLocationSettings
 import com.lyokone.location.location.LocationManager
 import com.lyokone.location.location.configuration.*
 import com.lyokone.location.location.configuration.Configurations.defaultConfiguration
@@ -52,7 +54,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
     private var eventChannel: EventChannel? = null
     private var eventSink: EventChannel.EventSink? = null
 
-    private var resultsNeedingLocation: MutableList<GeneratedAndroidLocation.Result<GeneratedAndroidLocation.PigeonLocationData>?> =
+    private var resultsNeedingLocation: MutableList<GeneratedAndroidLocation.Result<GeneratedAndroidLocation.PigeonLocationData?>> =
         mutableListOf()
 
     private var resultPermissionRequest: GeneratedAndroidLocation.Result<Long>? = null
@@ -176,9 +178,28 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
             )
         }
 
-        eventSink?.success(pigeonLocationData.toMap())
+        eventSink?.success(pigeonLocationDataToList(pigeonLocationData))
 
         resultsNeedingLocation = mutableListOf()
+    }
+
+    private fun pigeonLocationDataToList(pigeonLocationData: PigeonLocationData): ArrayList<Any?> {
+        val toListResult = ArrayList<Any?>(14)
+        toListResult.add(pigeonLocationData.latitude)
+        toListResult.add(pigeonLocationData.longitude)
+        toListResult.add(pigeonLocationData.accuracy)
+        toListResult.add(pigeonLocationData.altitude)
+        toListResult.add(pigeonLocationData.bearing)
+        toListResult.add(pigeonLocationData.bearingAccuracyDegrees)
+        toListResult.add(pigeonLocationData.elaspedRealTimeNanos)
+        toListResult.add(pigeonLocationData.elaspedRealTimeUncertaintyNanos)
+        toListResult.add(pigeonLocationData.satellites)
+        toListResult.add(pigeonLocationData.speed)
+        toListResult.add(pigeonLocationData.speedAccuracy)
+        toListResult.add(pigeonLocationData.time)
+        toListResult.add(pigeonLocationData.verticalAccuracy)
+        toListResult.add(pigeonLocationData.isMock)
+        return toListResult
     }
 
     override fun onLocationFailed(type: Int) {
@@ -264,8 +285,8 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
     }
 
     override fun getLocation(
-        settings: GeneratedAndroidLocation.PigeonLocationSettings?,
-        result: GeneratedAndroidLocation.Result<GeneratedAndroidLocation.PigeonLocationData>?
+        settings: PigeonLocationSettings?,
+        result: GeneratedAndroidLocation.Result<GeneratedAndroidLocation.PigeonLocationData?>
     ) {
         resultsNeedingLocation.add(result)
 
@@ -292,16 +313,15 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
             }
 
         }
-
     }
 
     private fun getPriorityFromAccuracy(accuracy: GeneratedAndroidLocation.PigeonLocationAccuracy): Int {
         return when (accuracy) {
-            GeneratedAndroidLocation.PigeonLocationAccuracy.powerSave -> LocationRequest.PRIORITY_NO_POWER
-            GeneratedAndroidLocation.PigeonLocationAccuracy.low -> LocationRequest.PRIORITY_LOW_POWER
-            GeneratedAndroidLocation.PigeonLocationAccuracy.balanced -> LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-            GeneratedAndroidLocation.PigeonLocationAccuracy.high -> LocationRequest.PRIORITY_HIGH_ACCURACY
-            GeneratedAndroidLocation.PigeonLocationAccuracy.navigation -> LocationRequest.PRIORITY_HIGH_ACCURACY
+            GeneratedAndroidLocation.PigeonLocationAccuracy.POWER_SAVE -> LocationRequest.PRIORITY_NO_POWER
+            GeneratedAndroidLocation.PigeonLocationAccuracy.LOW -> LocationRequest.PRIORITY_LOW_POWER
+            GeneratedAndroidLocation.PigeonLocationAccuracy.BALANCED -> LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+            GeneratedAndroidLocation.PigeonLocationAccuracy.HIGH -> LocationRequest.PRIORITY_HIGH_ACCURACY
+            GeneratedAndroidLocation.PigeonLocationAccuracy.NAVIGATION -> LocationRequest.PRIORITY_HIGH_ACCURACY
         }
     }
 
@@ -465,7 +485,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         return 0;
     }
 
-    override fun requestPermission(result: GeneratedAndroidLocation.Result<Long>?) {
+    override fun requestPermission(result: GeneratedAndroidLocation.Result<Long>) {
         val permissionProvider = DefaultPermissionProvider(LOCATION_PERMISSIONS, null)
         val contextProcessor = ContextProcessor(activity?.application)
         contextProcessor.activity = activity
@@ -474,7 +494,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
         if (!hasPermission) {
             // Denied Forever
-            result?.success(2)
+            result.success(2)
         } else {
             resultPermissionRequest = result
         }
