@@ -1,8 +1,7 @@
 name: back_location_android
 description: Android implementation of the location plugin
-homepage: https://docs.page/Lyokone/flutterlocation
-repository: https://github.com/Lyokone/flutterlocation
 version: 1.0.0
+publish_to: none
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -15,12 +14,16 @@ flutter:
       android:
         package: com.rideamigos.back_location
         pluginClass: LocationPlugin
-        dartPluginClass: BackLocationAndroid
 
 dependencies:
   flutter:
     sdk: flutter
-  back_location_platform_interface: ^1.0.0
+  back_location_platform_interface:
+    git:
+      url: https://github.com/RideAmigosCorp/back_location.git
+      path: packages/back_location_platform_interface/
+      ref: main
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

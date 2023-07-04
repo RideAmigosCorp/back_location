@@ -1,8 +1,5 @@
 name: back_location
-description: This librarie aims at providing you a simple way to get the user
-  location without thinking about permission.
-homepage: https://docs.page/Lyokone/flutterlocation
-repository: https://github.com/Lyokone/flutterlocation
+description: This library aims at providing you a simple way to get the users background location
 version: 1.0.0
 publish_to: none
 
@@ -32,7 +29,7 @@ dependencies:
   back_location_platform_interface:
     git:
       url: https://github.com/RideAmigosCorp/back_location.git
-      path: packages/back_location_ios/
+      path: packages/back_location_platform_interface/
       ref: main
   flutter:
     sdk: flutter
