@@ -1,5 +1,6 @@
 package com.rideamigos.back_location.location.helper;
 
+import android.annotation.SuppressLint;
 import android.location.LocationListener;
 import android.location.LocationManager;
 
@@ -26,6 +27,7 @@ public class UpdateRequest {
         run();
     }
 
+    @SuppressLint("MissingPermission")
     @SuppressWarnings("ResourceType")
     public void run() {
         if(StringUtils.isNotEmpty(provider)) {

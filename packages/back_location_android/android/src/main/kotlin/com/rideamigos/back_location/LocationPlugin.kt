@@ -1,52 +1,44 @@
 package com.rideamigos.back_location
 
-import android.Manifest
+import LocationHostApi
+import PigeonLocationAccuracy
+import PigeonLocationData
+import PigeonLocationSettings
+import PigeonNotificationSettings
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import androidx.annotation.NonNull
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.Priority
 import com.rideamigos.back_location.FlutterLocationService.LocalBinder
-import com.rideamigos.back_location.GeneratedAndroidLocation.PigeonLocationData
-import com.rideamigos.back_location.GeneratedAndroidLocation.PigeonLocationSettings
 import com.rideamigos.back_location.location.LocationManager
 import com.rideamigos.back_location.location.configuration.*
 import com.rideamigos.back_location.location.configuration.Configurations.defaultConfiguration
-import com.rideamigos.back_location.location.configuration.Defaults.LOCATION_PERMISSIONS
 import com.rideamigos.back_location.location.constants.FailType
 import com.rideamigos.back_location.location.constants.ProcessType
-import com.rideamigos.back_location.location.constants.RequestCode
-import com.rideamigos.back_location.location.helper.LogUtils
 import com.rideamigos.back_location.location.listener.LocationListener
-import com.rideamigos.back_location.location.providers.locationprovider.DefaultLocationProvider
-import com.rideamigos.back_location.location.providers.permissionprovider.DefaultPermissionProvider
-import com.rideamigos.back_location.location.view.ContextProcessor
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.EventChannel.StreamHandler
-import io.flutter.plugin.common.PluginRegistry
 
 
-class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
-    PluginRegistry.RequestPermissionsResultListener,
-    PluginRegistry.ActivityResultListener, GeneratedAndroidLocation.LocationHostApi, StreamHandler {
+class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationHostApi,
+    StreamHandler {
     private var context: Context? = null
     private var activity: Activity? = null
-    private var activityBinding: ActivityPluginBinding? = null
 
     private var globalLocationConfigurationBuilder: LocationConfiguration.Builder =
-        defaultConfiguration("The location is needed", "The GPS is needed")
+        defaultConfiguration()
     private var locationManager: LocationManager? = null
     private var streamLocationManager: LocationManager? = null
     private var flutterLocationService: FlutterLocationService? = null
@@ -54,47 +46,36 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
     private var eventChannel: EventChannel? = null
     private var eventSink: EventChannel.EventSink? = null
 
-    private var resultsNeedingLocation: MutableList<GeneratedAndroidLocation.Result<GeneratedAndroidLocation.PigeonLocationData?>> =
+    private var callbackResultsNeedingLocation: MutableList<(Result<PigeonLocationData>) -> Unit> =
         mutableListOf()
 
-    private var resultPermissionRequest: GeneratedAndroidLocation.Result<Long>? = null
-
-    private var alreadyRequestedPermission = false
-
-    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        GeneratedAndroidLocation.LocationHostApi.setup(flutterPluginBinding.binaryMessenger, this)
+    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        LocationHostApi.setUp(flutterPluginBinding.binaryMessenger, this)
         context = flutterPluginBinding.applicationContext
         eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, STREAM_CHANNEL_NAME)
         eventChannel?.setStreamHandler(this)
     }
 
 
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        GeneratedAndroidLocation.LocationHostApi.setup(binding.binaryMessenger, null)
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        LocationHostApi.setUp(binding.binaryMessenger, null)
         context = null
         eventChannel = null
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
-        activityBinding = binding
-        activityBinding?.addActivityResultListener(this)
-        activityBinding?.addRequestPermissionsResultListener(this)
 
         binding.activity.bindService(
             Intent(
-                binding.activity,
-                FlutterLocationService::class.java
+                binding.activity, FlutterLocationService::class.java
             ), serviceConnection, Context.BIND_AUTO_CREATE
         )
     }
 
     override fun onDetachedFromActivity() {
         activity = null
-        activityBinding?.removeActivityResultListener(this)
-        activityBinding?.removeRequestPermissionsResultListener(this)
-        activityBinding?.activity?.unbindService(serviceConnection)
-        activityBinding = null
+
     }
 
 
@@ -144,43 +125,45 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
     override fun onLocationChanged(location: Location?) {
         Log.d("LOCATION", location?.latitude.toString() + " " + location?.longitude.toString())
 
-        val locationBuilder =
-            GeneratedAndroidLocation.PigeonLocationData.Builder().setLatitude(location!!.latitude)
-                .setLongitude(location.longitude)
-                .setAccuracy(location.accuracy.toDouble())
-                .setAltitude(location.altitude)
-                .setBearing(location.bearing.toDouble())
-                .setElaspedRealTimeNanos(location.elapsedRealtimeNanos.toDouble())
-                .setIsMock(location.isFromMockProvider) 
-                .setSatellites(location.extras?.getInt("satellites")?.toLong())
-                .setSpeed(location.speed.toDouble())
+        var locationData = PigeonLocationData(
+            latitude = location!!.latitude,
+            longitude = location.longitude,
+            accuracy = location.accuracy.toDouble(),
+            altitude = location.altitude,
+            bearing = location.bearing.toDouble(),
+            elapsedRealTimeNanos = location.elapsedRealtimeNanos.toDouble(),
+            speed = location.speed.toDouble(),
+            satellites = location.extras?.getInt("satellites")?.toLong(),
+        )
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            locationBuilder.setBearingAccuracyDegrees(location.bearingAccuracyDegrees.toDouble())
-                .setSpeedAccuracy(location.speedAccuracyMetersPerSecond.toDouble())
-                .setVerticalAccuracy(location.verticalAccuracyMeters.toDouble())
+            locationData = locationData.copy(
+                bearingAccuracyDegrees = locationData.bearingAccuracyDegrees,
+                speedAccuracy = locationData.speedAccuracy,
+                verticalAccuracy = locationData.verticalAccuracy
+            )
+
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            locationBuilder.setElaspedRealTimeUncertaintyNanos(location.elapsedRealtimeUncertaintyNanos)
+            locationData =
+                locationData.copy(elapsedRealTimeUncertaintyNanos = locationData.elapsedRealTimeUncertaintyNanos)
         }
 
 
-        val pigeonLocationData = locationBuilder.build()
-
-        for (result in resultsNeedingLocation) {
-            if (result == null) {
-                return
-            }
-            result.success(
-                pigeonLocationData
+        for (callback in callbackResultsNeedingLocation) {
+            callback(
+                Result.success(
+                    locationData
+                )
             )
         }
 
-        eventSink?.success(pigeonLocationDataToList(pigeonLocationData))
 
-        resultsNeedingLocation = mutableListOf()
+        eventSink?.success(pigeonLocationDataToList(locationData))
+
+        callbackResultsNeedingLocation = mutableListOf()
     }
 
     private fun pigeonLocationDataToList(pigeonLocationData: PigeonLocationData): ArrayList<Any?> {
@@ -191,8 +174,8 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         toListResult.add(pigeonLocationData.altitude)
         toListResult.add(pigeonLocationData.bearing)
         toListResult.add(pigeonLocationData.bearingAccuracyDegrees)
-        toListResult.add(pigeonLocationData.elaspedRealTimeNanos)
-        toListResult.add(pigeonLocationData.elaspedRealTimeUncertaintyNanos)
+        toListResult.add(pigeonLocationData.elapsedRealTimeNanos)
+        toListResult.add(pigeonLocationData.elapsedRealTimeUncertaintyNanos)
         toListResult.add(pigeonLocationData.satellites)
         toListResult.add(pigeonLocationData.speed)
         toListResult.add(pigeonLocationData.speedAccuracy)
@@ -205,10 +188,6 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
     override fun onLocationFailed(type: Int) {
         Log.d("Location", "onLocationFailed")
         when (type) {
-            FailType.PERMISSION_DENIED -> {
-                resultPermissionRequest?.success(2)
-                resultPermissionRequest = null
-            }
             FailType.GOOGLE_PLAY_SERVICES_NOT_AVAILABLE -> {
             }
             FailType.GOOGLE_PLAY_SERVICES_SETTINGS_DENIED -> {
@@ -228,12 +207,6 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         }
     }
 
-    override fun onPermissionGranted(alreadyHadPermission: Boolean, limitedPermission: Boolean) {
-        Log.d("Location", "onPermissionGranted")
-        resultPermissionRequest?.success(if (limitedPermission) 1 else 4)
-        resultPermissionRequest = null
-    }
-
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
         Log.d("Location", "onStatusChanged")
     }
@@ -246,49 +219,10 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         Log.d("Location", "onProviderDisabled")
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ): Boolean {
-        this.alreadyRequestedPermission = true;
-        Log.d("Location", "onRequestPermissionsResult")
-        if (locationManager == null) {
-            if (requestCode == RequestCode.RUNTIME_PERMISSION) {
-                // Check if any of required permissions are denied.
-                var isDenied = 0
-                var i = 0
-                val size = permissions.size
-                while (i < size) {
-                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                        isDenied++
-                    }
-                    i++
-                }
-                if (isDenied == size) {
-                    LogUtils.logI("User denied all of required permissions, task will be aborted!")
-                    this.onLocationFailed(FailType.PERMISSION_DENIED)
-                } else {
-                    LogUtils.logI("We got all required permission!")
-                    this.onPermissionGranted(false, isDenied > 0)
-                }
-            }
-        }
-        locationManager?.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        return true
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        Log.d("Location", "onActivityResult")
-        locationManager?.onActivityResult(requestCode, resultCode, data)
-        return true
-    }
-
     override fun getLocation(
-        settings: PigeonLocationSettings?,
-        result: GeneratedAndroidLocation.Result<GeneratedAndroidLocation.PigeonLocationData?>
+        settings: PigeonLocationSettings?, callback: (Result<PigeonLocationData>) -> Unit
     ) {
-        resultsNeedingLocation.add(result)
+        callbackResultsNeedingLocation.add(callback)
 
         val isListening = streamLocationManager != null
 
@@ -296,18 +230,14 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
             val locationConfiguration = getLocationConfigurationFromSettings(settings)
             locationManager = LocationManager.Builder(context!!)
                 .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
-                .configuration(locationConfiguration.build())
-                .notify(this)
-                .build()
+                .configuration(locationConfiguration.build()).notify(this).build()
 
             locationManager?.get()
         } else {
             if (!isListening) {
                 locationManager = LocationManager.Builder(context!!)
                     .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
-                    .configuration(globalLocationConfigurationBuilder.build())
-                    .notify(this)
-                    .build()
+                    .configuration(globalLocationConfigurationBuilder.build()).notify(this).build()
 
                 locationManager?.get()
             }
@@ -315,57 +245,46 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         }
     }
 
-    private fun getPriorityFromAccuracy(accuracy: GeneratedAndroidLocation.PigeonLocationAccuracy): Int {
+    private fun getPriorityFromAccuracy(accuracy: PigeonLocationAccuracy): Int {
         return when (accuracy) {
-            GeneratedAndroidLocation.PigeonLocationAccuracy.POWER_SAVE -> LocationRequest.PRIORITY_NO_POWER
-            GeneratedAndroidLocation.PigeonLocationAccuracy.LOW -> LocationRequest.PRIORITY_LOW_POWER
-            GeneratedAndroidLocation.PigeonLocationAccuracy.BALANCED -> LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-            GeneratedAndroidLocation.PigeonLocationAccuracy.HIGH -> LocationRequest.PRIORITY_HIGH_ACCURACY
-            GeneratedAndroidLocation.PigeonLocationAccuracy.NAVIGATION -> LocationRequest.PRIORITY_HIGH_ACCURACY
+            PigeonLocationAccuracy.POWERSAVE -> Priority.PRIORITY_PASSIVE
+            PigeonLocationAccuracy.LOW -> Priority.PRIORITY_LOW_POWER
+            PigeonLocationAccuracy.BALANCED -> Priority.PRIORITY_BALANCED_POWER_ACCURACY
+            PigeonLocationAccuracy.HIGH -> Priority.PRIORITY_HIGH_ACCURACY
+            PigeonLocationAccuracy.NAVIGATION -> Priority.PRIORITY_HIGH_ACCURACY
         }
     }
 
 
-    private fun getLocationConfigurationFromSettings(settings: GeneratedAndroidLocation.PigeonLocationSettings): LocationConfiguration.Builder {
+    private fun getLocationConfigurationFromSettings(settings: PigeonLocationSettings): LocationConfiguration.Builder {
         val locationConfiguration = LocationConfiguration.Builder()
-
-        if (settings.askForPermission) {
-            val permissionConfiguration = PermissionConfiguration.Builder()
-                .rationaleMessage(settings.rationaleMessageForPermissionRequest)
-
-            locationConfiguration.askForPermission(permissionConfiguration.build())
-        }
 
         if (settings.useGooglePlayServices) {
             val googlePlayServices = GooglePlayServicesConfiguration.Builder()
             googlePlayServices.askForGooglePlayServices(settings.askForGooglePlayServices)
-                .askForSettingsApi(settings.askForGPS)
                 .fallbackToDefault(settings.fallbackToGPS)
                 .ignoreLastKnowLocation(settings.ignoreLastKnownPosition)
 
-
-            val locationRequest = LocationRequest.create()
+            val locationRequestBuilder = LocationRequest.Builder(settings.interval.toLong())
 
             if (settings.expirationDuration != null) {
-                locationRequest.setExpirationDuration(settings.expirationDuration!!.toLong())
+                locationRequestBuilder.setDurationMillis(settings.expirationDuration.toLong())
             }
-            if (settings.expirationTime != null) {
-                locationRequest.expirationTime = settings.expirationTime!!.toLong()
-            }
-            locationRequest.fastestInterval = (settings.fastestInterval.toLong())
-            locationRequest.interval = settings.interval.toLong()
-            locationRequest.priority = getPriorityFromAccuracy(settings.accuracy)
 
             if (settings.maxWaitTime != null) {
-                locationRequest.maxWaitTime = settings.maxWaitTime!!.toLong()
+                locationRequestBuilder.setMaxUpdateDelayMillis(settings.maxWaitTime.toLong())
             }
             if (settings.numUpdates != null) {
-                locationRequest.numUpdates = settings.numUpdates!!.toInt()
+                locationRequestBuilder.setMaxUpdates((settings.numUpdates.toInt()))
             }
-            locationRequest.smallestDisplacement = settings.smallestDisplacement.toFloat()
-            locationRequest.isWaitForAccurateLocation = settings.waitForAccurateLocation
 
-            googlePlayServices.locationRequest(locationRequest)
+            locationRequestBuilder.setMinUpdateIntervalMillis(settings.fastestInterval.toLong())
+                .setPriority(getPriorityFromAccuracy(settings.accuracy))
+                .setMinUpdateDistanceMeters(settings.smallestDisplacement.toFloat())
+                .setWaitForAccurateLocation(settings.waitForAccurateLocation)
+
+
+            googlePlayServices.locationRequest(locationRequestBuilder.build())
 
             locationConfiguration.useGooglePlayServices(googlePlayServices.build())
         }
@@ -373,12 +292,9 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         if (settings.fallbackToGPS) {
             val defaultProvider = DefaultProviderConfiguration.Builder()
 
-            defaultProvider.gpsMessage(settings.rationaleMessageForGPSRequest)
-
-
             defaultProvider.requiredTimeInterval(settings.interval.toLong())
             if (settings.acceptableAccuracy != null) {
-                defaultProvider.acceptableAccuracy(settings.acceptableAccuracy!!.toFloat())
+                defaultProvider.acceptableAccuracy(settings.acceptableAccuracy.toFloat())
             }
 
             locationConfiguration.useDefaultProviders(defaultProvider.build())
@@ -387,62 +303,8 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         return locationConfiguration
     }
 
-    override fun setLocationSettings(settings: GeneratedAndroidLocation.PigeonLocationSettings): Boolean {
+    override fun setLocationSettings(settings: PigeonLocationSettings): Boolean {
         val locationConfiguration = getLocationConfigurationFromSettings(settings)
-
-        if (settings.askForPermission) {
-            val permissionConfiguration = PermissionConfiguration.Builder()
-                .rationaleMessage(settings.rationaleMessageForPermissionRequest)
-
-            locationConfiguration.askForPermission(permissionConfiguration.build())
-        }
-
-        if (settings.useGooglePlayServices) {
-            val googlePlayServices = GooglePlayServicesConfiguration.Builder()
-            googlePlayServices.askForGooglePlayServices(settings.askForGooglePlayServices)
-                .askForSettingsApi(settings.askForGPS)
-                .fallbackToDefault(settings.fallbackToGPS)
-                .ignoreLastKnowLocation(settings.ignoreLastKnownPosition)
-
-
-            val locationRequest = LocationRequest.create()
-
-            if (settings.expirationDuration != null) {
-                locationRequest.setExpirationDuration(settings.expirationDuration!!.toLong())
-            }
-            if (settings.expirationTime != null) {
-                locationRequest.expirationTime = settings.expirationTime!!.toLong()
-            }
-            locationRequest.fastestInterval = (settings.fastestInterval.toLong())
-            locationRequest.interval = settings.interval.toLong()
-            locationRequest.priority = getPriorityFromAccuracy(settings.accuracy)
-
-            if (settings.maxWaitTime != null) {
-                locationRequest.maxWaitTime = settings.maxWaitTime!!.toLong()
-            }
-            if (settings.numUpdates != null) {
-                locationRequest.numUpdates = settings.numUpdates!!.toInt()
-            }
-            locationRequest.smallestDisplacement = settings.smallestDisplacement.toFloat()
-            locationRequest.isWaitForAccurateLocation = settings.waitForAccurateLocation
-
-            googlePlayServices.locationRequest(locationRequest)
-
-            locationConfiguration.useGooglePlayServices(googlePlayServices.build())
-        }
-
-        if (settings.fallbackToGPS) {
-            val defaultProvider = DefaultProviderConfiguration.Builder()
-
-            defaultProvider.gpsMessage(settings.rationaleMessageForGPSRequest)
-
-            defaultProvider.requiredTimeInterval(settings.interval.toLong())
-            if (settings.acceptableAccuracy != null) {
-                defaultProvider.acceptableAccuracy(settings.acceptableAccuracy!!.toFloat())
-            }
-
-            locationConfiguration.useDefaultProviders(defaultProvider.build())
-        }
 
         globalLocationConfigurationBuilder = locationConfiguration
 
@@ -451,8 +313,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
             streamLocationManager = LocationManager.Builder(context!!)
                 .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
                 .configuration(globalLocationConfigurationBuilder.keepTracking(true).build())
-                .notify(this)
-                .build()
+                .notify(this).build()
 
             streamLocationManager?.get()
         }
@@ -460,79 +321,17 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         return true
     }
 
-    override fun getPermissionStatus(): Long {
-        val permissionProvider = DefaultPermissionProvider(LOCATION_PERMISSIONS, null)
-        val contextProcessor = ContextProcessor(activity?.application)
-        contextProcessor.activity = activity
-        permissionProvider.setContextProcessor(contextProcessor)
-
-        if (permissionProvider.hasPermission()) {
-            return 4
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (activity?.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) == true) {
-                return 0;
-            }
-        } else {
-            return 4
-        };
-
-
-        if (alreadyRequestedPermission) {
-            return 2
-        }
-        return 0;
-    }
-
-    override fun requestPermission(result: GeneratedAndroidLocation.Result<Long>) {
-        val permissionProvider = DefaultPermissionProvider(LOCATION_PERMISSIONS, null)
-        val contextProcessor = ContextProcessor(activity?.application)
-        contextProcessor.activity = activity
-        permissionProvider.setContextProcessor(contextProcessor)
-        val hasPermission = permissionProvider.requestPermissions()
-
-        if (!hasPermission) {
-            // Denied Forever
-            result.success(2)
-        } else {
-            resultPermissionRequest = result
-        }
-    }
-
-    override fun isGPSEnabled(): Boolean {
-        val locationProvider = DefaultLocationProvider()
-        val contextProcessor = ContextProcessor(activity?.application)
-        contextProcessor.activity = activity
-
-        locationProvider.configure(
-            contextProcessor, globalLocationConfigurationBuilder.build(),
-            this
-        )
-        return locationProvider.isGPSProviderEnabled
-    }
-
-    override fun isNetworkEnabled(): Boolean {
-        val locationProvider = DefaultLocationProvider()
-        val contextProcessor = ContextProcessor(activity?.application)
-        contextProcessor.activity = activity
-
-        locationProvider.configure(
-            contextProcessor, globalLocationConfigurationBuilder.build(),
-            this
-        )
-        return locationProvider.isNetworkProviderEnabled
-    }
-
-    override fun changeNotificationSettings(settings: GeneratedAndroidLocation.PigeonNotificationSettings): Boolean {
+    override fun changeNotificationSettings(settings: PigeonNotificationSettings): Boolean {
         flutterLocationService?.changeNotificationOptions(
             NotificationOptions(
-                title = if (settings.title != null) settings.title!! else kDefaultNotificationTitle,
-                iconName = if (settings.iconName != null) settings.iconName!! else kDefaultNotificationIconName,
+                title = settings.title ?: kDefaultNotificationTitle,
+                iconName = settings.iconName ?: kDefaultNotificationIconName,
                 subtitle = settings.subtitle,
                 description = settings.subtitle,
                 color = if (settings.color != null) Color.parseColor(settings.color) else null,
-                onTapBringToFront = if (settings.onTapBringToFront != null) settings.onTapBringToFront!! else false,
+                onTapBringToFront = settings.onTapBringToFront ?: false,
+                setOngoing = settings.setOngoing ?: false,
+                channelDescription = settings.channelDescription
             )
         )
 
@@ -555,8 +354,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         streamLocationManager = LocationManager.Builder(context!!)
             .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
             .configuration(globalLocationConfigurationBuilder.keepTracking(true).build())
-            .notify(this)
-            .build()
+            .notify(this).build()
 
         streamLocationManager?.get()
         if (inBackground) {

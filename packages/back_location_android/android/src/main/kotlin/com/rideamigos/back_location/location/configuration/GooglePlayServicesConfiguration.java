@@ -3,7 +3,6 @@ package com.rideamigos.back_location.location.configuration;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.location.LocationRequest;
-import com.rideamigos.back_location.location.configuration.Defaults;
 import com.rideamigos.back_location.location.providers.locationprovider.DefaultLocationProvider;
 import com.rideamigos.back_location.location.providers.locationprovider.GooglePlayServicesLocationProvider;
 
@@ -12,8 +11,6 @@ public class GooglePlayServicesConfiguration {
     private final LocationRequest locationRequest;
     private final boolean fallbackToDefault;
     private final boolean askForGooglePlayServices;
-    private final boolean askForSettingsApi;
-    private final boolean failOnSettingsApiSuspended;
     private final boolean ignoreLastKnowLocation;
     private final long googlePlayServicesWaitPeriod;
 
@@ -21,22 +18,10 @@ public class GooglePlayServicesConfiguration {
         this.locationRequest = builder.locationRequest;
         this.fallbackToDefault = builder.fallbackToDefault;
         this.askForGooglePlayServices = builder.askForGooglePlayServices;
-        this.askForSettingsApi = builder.askForSettingsApi;
-        this.failOnSettingsApiSuspended = builder.failOnSettingsApiSuspended;
         this.ignoreLastKnowLocation = builder.ignoreLastKnowLocation;
         this.googlePlayServicesWaitPeriod = builder.googlePlayServicesWaitPeriod;
     }
 
-    public Builder newBuilder() {
-        return new Builder()
-              .locationRequest(locationRequest)
-              .fallbackToDefault(fallbackToDefault)
-              .askForGooglePlayServices(askForGooglePlayServices)
-              .askForSettingsApi(askForSettingsApi)
-              .failOnSettingsApiSuspended(failOnSettingsApiSuspended)
-              .ignoreLastKnowLocation(ignoreLastKnowLocation)
-              .setWaitPeriod(googlePlayServicesWaitPeriod);
-    }
 
     // region Getters
     public LocationRequest locationRequest() {
@@ -49,14 +34,6 @@ public class GooglePlayServicesConfiguration {
 
     public boolean askForGooglePlayServices() {
         return askForGooglePlayServices;
-    }
-
-    public boolean askForSettingsApi() {
-        return askForSettingsApi;
-    }
-
-    public boolean failOnSettingsApiSuspended() {
-        return failOnSettingsApiSuspended;
     }
 
     public boolean ignoreLastKnowLocation() {
@@ -74,8 +51,6 @@ public class GooglePlayServicesConfiguration {
         private LocationRequest locationRequest = com.rideamigos.back_location.location.configuration.Defaults.createDefaultLocationRequest();
         private boolean fallbackToDefault = com.rideamigos.back_location.location.configuration.Defaults.FALLBACK_TO_DEFAULT;
         private boolean askForGooglePlayServices = com.rideamigos.back_location.location.configuration.Defaults.ASK_FOR_GP_SERVICES;
-        private boolean askForSettingsApi = com.rideamigos.back_location.location.configuration.Defaults.ASK_FOR_SETTINGS_API;
-        private boolean failOnSettingsApiSuspended = com.rideamigos.back_location.location.configuration.Defaults.FAIL_ON_SETTINGS_API_SUSPENDED;
         private boolean ignoreLastKnowLocation = com.rideamigos.back_location.location.configuration.Defaults.IGNORE_LAST_KNOW_LOCATION;
         private long googlePlayServicesWaitPeriod = com.rideamigos.back_location.location.configuration.Defaults.WAIT_PERIOD;
 
@@ -109,35 +84,6 @@ public class GooglePlayServicesConfiguration {
             this.askForGooglePlayServices = askForGooglePlayServices;
             return this;
         }
-
-        /**
-         * While trying to get location via GooglePlayServices LocationApi,
-         * manager will check whether GPS, Wifi and Cell networks are available or not.
-         * Then if this flag is on it will ask user to turn them on, again, via GooglePlayServices
-         * by displaying a system dialog if not it will directly try to receive location
-         * -which probably not going to return any values.
-         *
-         * Default is True.
-         */
-        public Builder askForSettingsApi(boolean askForSettingsApi) {
-            this.askForSettingsApi = askForSettingsApi;
-            return this;
-        }
-
-        /**
-         * This flag will be checked when it is not possible to display user a settingsApi dialog
-         * to switch necessary providers on, or when there is an error displaying the dialog.
-         * If the flag is on, then manager will setDialogListener listener as location failed,
-         * otherwise it will try to get location anyway -which probably not gonna happen.
-         *
-         * Default is False. -Because after GooglePlayServices Provider it might switch
-         * to default providers, if we fail here then those provider will never trigger.
-         */
-        public Builder failOnSettingsApiSuspended(boolean failOnSettingsApiSuspended) {
-            this.failOnSettingsApiSuspended = failOnSettingsApiSuspended;
-            return this;
-        }
-
         /**
          * GooglePlayServices Api returns the best most recent location currently available. It is highly recommended to
          * use this functionality unless your requirements are really specific and precise.

@@ -115,52 +115,60 @@ struct PigeonLocationData {
 /// Generated class from Pigeon that represents data sent in messages.
 struct PigeonNotificationSettings {
   var channelName: String? = nil
+  var channelDescription: String? = nil
   var title: String? = nil
   var iconName: String? = nil
   var subtitle: String? = nil
   var description: String? = nil
   var color: String? = nil
   var onTapBringToFront: Bool? = nil
+  var setOngoing: Bool? = nil
 
   static func fromList(_ list: [Any?]) -> PigeonNotificationSettings? {
     let channelName: String? = nilOrValue(list[0])
-    let title: String? = nilOrValue(list[1])
-    let iconName: String? = nilOrValue(list[2])
-    let subtitle: String? = nilOrValue(list[3])
-    let description: String? = nilOrValue(list[4])
-    let color: String? = nilOrValue(list[5])
-    let onTapBringToFront: Bool? = nilOrValue(list[6])
+    let channelDescription: String? = nilOrValue(list[1])
+    let title: String? = nilOrValue(list[2])
+    let iconName: String? = nilOrValue(list[3])
+    let subtitle: String? = nilOrValue(list[4])
+    let description: String? = nilOrValue(list[5])
+    let color: String? = nilOrValue(list[6])
+    let onTapBringToFront: Bool? = nilOrValue(list[7])
+    let setOngoing: Bool? = nilOrValue(list[8])
 
     return PigeonNotificationSettings(
       channelName: channelName,
+      channelDescription: channelDescription,
       title: title,
       iconName: iconName,
       subtitle: subtitle,
       description: description,
       color: color,
-      onTapBringToFront: onTapBringToFront
+      onTapBringToFront: onTapBringToFront,
+      setOngoing: setOngoing
     )
   }
   func toList() -> [Any?] {
     return [
       channelName,
+      channelDescription,
       title,
       iconName,
       subtitle,
       description,
       color,
       onTapBringToFront,
+      setOngoing,
     ]
   }
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct PigeonLocationSettings {
+  var askForGooglePlayServices: Bool
   var useGooglePlayServices: Bool
   var fallbackToGPS: Bool
   var ignoreLastKnownPosition: Bool
   var expirationDuration: Double? = nil
-  var expirationTime: Double? = nil
   var fastestInterval: Double
   var interval: Double
   var maxWaitTime: Double? = nil
@@ -171,11 +179,11 @@ struct PigeonLocationSettings {
   var acceptableAccuracy: Double? = nil
 
   static func fromList(_ list: [Any?]) -> PigeonLocationSettings? {
-    let useGooglePlayServices = list[0] as! Bool
-    let fallbackToGPS = list[1] as! Bool
-    let ignoreLastKnownPosition = list[2] as! Bool
-    let expirationDuration: Double? = nilOrValue(list[3])
-    let expirationTime: Double? = nilOrValue(list[4])
+    let askForGooglePlayServices = list[0] as! Bool
+    let useGooglePlayServices = list[1] as! Bool
+    let fallbackToGPS = list[2] as! Bool
+    let ignoreLastKnownPosition = list[3] as! Bool
+    let expirationDuration: Double? = nilOrValue(list[4])
     let fastestInterval = list[5] as! Double
     let interval = list[6] as! Double
     let maxWaitTime: Double? = nilOrValue(list[7])
@@ -186,11 +194,11 @@ struct PigeonLocationSettings {
     let acceptableAccuracy: Double? = nilOrValue(list[12])
 
     return PigeonLocationSettings(
+      askForGooglePlayServices: askForGooglePlayServices,
       useGooglePlayServices: useGooglePlayServices,
       fallbackToGPS: fallbackToGPS,
       ignoreLastKnownPosition: ignoreLastKnownPosition,
       expirationDuration: expirationDuration,
-      expirationTime: expirationTime,
       fastestInterval: fastestInterval,
       interval: interval,
       maxWaitTime: maxWaitTime,
@@ -203,11 +211,11 @@ struct PigeonLocationSettings {
   }
   func toList() -> [Any?] {
     return [
+      askForGooglePlayServices,
       useGooglePlayServices,
       fallbackToGPS,
       ignoreLastKnownPosition,
       expirationDuration,
-      expirationTime,
       fastestInterval,
       interval,
       maxWaitTime,

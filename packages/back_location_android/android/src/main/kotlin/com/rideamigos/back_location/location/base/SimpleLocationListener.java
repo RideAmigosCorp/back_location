@@ -19,11 +19,6 @@ public abstract class SimpleLocationListener implements LocationListener {
     }
 
     @Override
-    public void onPermissionGranted(boolean alreadyHadPermission, boolean limitedPermission) {
-
-    }
-
-    @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
 
     }

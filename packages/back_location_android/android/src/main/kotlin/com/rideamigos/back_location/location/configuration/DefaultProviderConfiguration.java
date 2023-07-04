@@ -1,13 +1,6 @@
 package com.rideamigos.back_location.location.configuration;
 
-import androidx.annotation.Nullable;
-
-import com.rideamigos.back_location.location.configuration.Defaults;
-import com.rideamigos.back_location.location.configuration.LocationConfiguration;
 import com.rideamigos.back_location.location.constants.ProviderType;
-import com.rideamigos.back_location.location.helper.StringUtils;
-import com.rideamigos.back_location.location.providers.dialogprovider.DialogProvider;
-import com.rideamigos.back_location.location.providers.dialogprovider.SimpleMessageDialogProvider;
 
 public class DefaultProviderConfiguration {
 
@@ -17,7 +10,6 @@ public class DefaultProviderConfiguration {
     private final long acceptableTimePeriod;
     private final long gpsWaitPeriod;
     private final long networkWaitPeriod;
-    private final DialogProvider gpsDialogProvider;
 
     private DefaultProviderConfiguration(Builder builder) {
         this.requiredTimeInterval = builder.requiredTimeInterval;
@@ -26,19 +18,8 @@ public class DefaultProviderConfiguration {
         this.acceptableTimePeriod = builder.acceptableTimePeriod;
         this.gpsWaitPeriod = builder.gpsWaitPeriod;
         this.networkWaitPeriod = builder.networkWaitPeriod;
-        this.gpsDialogProvider = builder.gpsDialogProvider;
     }
 
-    public Builder newBuilder() {
-        return new Builder()
-              .requiredTimeInterval(requiredTimeInterval)
-              .requiredDistanceInterval(requiredDistanceInterval)
-              .acceptableAccuracy(acceptableAccuracy)
-              .acceptableTimePeriod(acceptableTimePeriod)
-              .setWaitPeriod(ProviderType.GPS, gpsWaitPeriod)
-              .setWaitPeriod(ProviderType.NETWORK, networkWaitPeriod)
-              .gpsDialogProvider(gpsDialogProvider);
-    }
 
     // region Getters
     public long requiredTimeInterval() {
@@ -55,15 +36,6 @@ public class DefaultProviderConfiguration {
 
     public long acceptableTimePeriod() {
         return acceptableTimePeriod;
-    }
-
-    public boolean askForEnableGPS() {
-        return gpsDialogProvider != null;
-    }
-
-    @Nullable
-    public DialogProvider gpsDialogProvider() {
-        return gpsDialogProvider;
     }
 
     public long gpsWaitPeriod() {
@@ -84,7 +56,6 @@ public class DefaultProviderConfiguration {
         private long acceptableTimePeriod = com.rideamigos.back_location.location.configuration.Defaults.TIME_PERIOD;
         private long gpsWaitPeriod = com.rideamigos.back_location.location.configuration.Defaults.WAIT_PERIOD;
         private long networkWaitPeriod = com.rideamigos.back_location.location.configuration.Defaults.WAIT_PERIOD;
-        private DialogProvider gpsDialogProvider;
         private String gpsMessage = com.rideamigos.back_location.location.configuration.Defaults.EMPTY_STRING;
 
         /**
@@ -153,19 +124,6 @@ public class DefaultProviderConfiguration {
             return this;
         }
 
-        /**
-         * If you need to display a custom dialog to ask user to enable GPS, you can provide your own
-         * implementation of {@linkplain DialogProvider} and manager will use that implementation to display the dialog.
-         * Important, if you set your own implementation, please make sure to handle gpsMessage as well.
-         * Because {@linkplain Builder#gpsMessage} will be ignored in that case.
-         *
-         * If you don't specify any dialogProvider implementation {@linkplain SimpleMessageDialogProvider} will be used with
-         * given {@linkplain Builder#gpsMessage}
-         */
-        public Builder gpsDialogProvider(DialogProvider dialogProvider) {
-            this.gpsDialogProvider = dialogProvider;
-            return this;
-        }
 
         /**
          * Indicates waiting time period before switching to next possible provider.
@@ -205,10 +163,6 @@ public class DefaultProviderConfiguration {
         }
 
         public DefaultProviderConfiguration build() {
-            if (gpsDialogProvider == null && StringUtils.isNotEmpty(gpsMessage)) {
-                gpsDialogProvider = new SimpleMessageDialogProvider(gpsMessage);
-            }
-
             return new DefaultProviderConfiguration(this);
         }
     }

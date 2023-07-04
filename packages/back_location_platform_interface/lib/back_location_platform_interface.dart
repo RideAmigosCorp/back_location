@@ -49,11 +49,13 @@ abstract class LocationPlatform extends PlatformInterface {
   /// Return true if the notification was properly updated
   Future<bool?> updateBackgroundNotification({
     String? channelName,
+    String? channelDescription,
     String? title,
     String? iconName,
     String? subtitle,
     String? description,
     Color? color,
     bool? onTapBringToFront,
+    bool? setOngoing,
   });
 }

@@ -30,6 +30,11 @@ Stream<LocationData> onLocationChanged({bool inBackground = false}) {
 /// Update global location settings.
 /// The settings are a passthrough to the [LocationSettings] class.
 Future<void> setLocationSettings({
+  /// If set to true, the app will request Google Play Services
+  /// to request location.
+  /// If not available on the device, the app will fallback to GPS.
+  bool askForGooglePlayServices = false,
+
   /// If set to true, the app will use Google Play Services to request location.
   /// If not available on the device, the app will fallback to GPS.
   /// Only valid on Android.
@@ -47,10 +52,6 @@ Future<void> setLocationSettings({
   /// The duration of the location request.
   /// Only valid on Android.
   double? expirationDuration,
-
-  /// The expiration time of the location request.
-  /// Only valid on Android.
-  double? expirationTime,
 
   /// The fastest interval between location updates.
   /// In milliseconds.
@@ -89,7 +90,6 @@ Future<void> setLocationSettings({
       fallbackToGPS: fallbackToGPS,
       ignoreLastKnownPosition: ignoreLastKnownPosition,
       expirationDuration: expirationDuration,
-      expirationTime: expirationTime,
       fastestInterval: fastestInterval,
       interval: interval,
       maxWaitTime: maxWaitTime,
@@ -127,21 +127,25 @@ Future<void> setLocationSettings({
 /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
 Future<bool> updateBackgroundNotification({
   String? channelName,
+  String? channelDescription,
   String? title,
   String? iconName,
   String? subtitle,
   String? description,
   Color? color,
   bool? onTapBringToFront,
+  bool? setOngoing,
 }) async {
   final response = await _platform.updateBackgroundNotification(
     channelName: channelName,
+    channelDescription: channelDescription,
     title: title,
     iconName: iconName,
     subtitle: subtitle,
     description: description,
     color: color,
     onTapBringToFront: onTapBringToFront,
+    setOngoing: setOngoing,
   );
   if (response == null) {
     throw Exception('Error while getting Network status');

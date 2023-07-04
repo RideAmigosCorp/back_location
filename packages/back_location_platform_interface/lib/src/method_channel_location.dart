@@ -52,12 +52,14 @@ class MethodChannelLocation extends LocationPlatform {
   @override
   Future<bool?> updateBackgroundNotification({
     String? channelName,
+    String? channelDescription,
     String? title,
     String? iconName,
     String? subtitle,
     String? description,
     Color? color,
     bool? onTapBringToFront,
+    bool? setOngoing,
   }) async {
     if (!Platform.isAndroid) {
       return true;
@@ -65,12 +67,14 @@ class MethodChannelLocation extends LocationPlatform {
     return _api.changeNotificationSettings(
       PigeonNotificationSettings(
         channelName: channelName,
+        channelDescription: channelDescription,
         title: title,
         iconName: iconName,
         subtitle: subtitle,
         description: description,
         color: color != null ? '#${color.value.toRadixString(16)}' : null,
         onTapBringToFront: onTapBringToFront,
+        setOngoing: setOngoing,
       ),
     );
   }

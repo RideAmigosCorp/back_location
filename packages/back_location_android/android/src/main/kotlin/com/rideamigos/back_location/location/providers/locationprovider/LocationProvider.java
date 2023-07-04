@@ -46,12 +46,6 @@ public abstract class LocationProvider {
     }
 
     /**
-     * This method will be used to determine whether any LocationProvider
-     * is currently displaying dialog or something.
-     */
-    public abstract boolean isDialogShowing();
-
-    /**
      * This is where your provider actually starts working
      */
     public abstract void get();

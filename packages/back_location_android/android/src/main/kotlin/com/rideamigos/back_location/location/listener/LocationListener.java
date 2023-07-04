@@ -28,14 +28,6 @@ public interface LocationListener {
     void onLocationFailed(@FailType int type);
 
     /**
-     * This method will be invoked when user grants for location permissions,
-     * or when you ask for it but the application already had that granted.
-     * You can determine if permission is just granted or
-     * did the application already have it by checking boolean input of this method.
-     */
-    void onPermissionGranted(boolean alreadyHadPermission, boolean limitedPermission);
-
-    /**
      * This method will be invoked if only you use android.location.LocationManager
      * with GPS or Network Providers to receive location
      */

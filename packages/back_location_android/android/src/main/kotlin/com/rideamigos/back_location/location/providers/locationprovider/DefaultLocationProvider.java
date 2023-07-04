@@ -1,12 +1,10 @@
 package com.rideamigos.back_location.location.providers.locationprovider;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 
@@ -15,23 +13,17 @@ import com.rideamigos.back_location.location.constants.ProcessType;
 import com.rideamigos.back_location.location.constants.RequestCode;
 import com.rideamigos.back_location.location.helper.LogUtils;
 import com.rideamigos.back_location.location.helper.continuoustask.ContinuousTask.ContinuousTaskRunner;
-import com.rideamigos.back_location.location.listener.DialogListener;
-import com.rideamigos.back_location.location.providers.dialogprovider.DialogProvider;
 
 @SuppressWarnings("ResourceType")
-public class DefaultLocationProvider extends LocationProvider
-        implements ContinuousTaskRunner, LocationListener, DialogListener {
+public class DefaultLocationProvider extends LocationProvider implements ContinuousTaskRunner, LocationListener {
 
     private com.rideamigos.back_location.location.providers.locationprovider.DefaultLocationSource defaultLocationSource;
 
     private String provider;
-    private Dialog gpsDialog;
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        gpsDialog = null;
 
         getSourceProvider().removeSwitchTask();
         getSourceProvider().removeUpdateRequest();
@@ -61,17 +53,6 @@ public class DefaultLocationProvider extends LocationProvider
         if (isWaiting()) {
             getSourceProvider().getProviderSwitchTask().resume();
         }
-
-        if (isDialogShowing() && isGPSProviderEnabled()) {
-            // User activated GPS by going settings manually
-            gpsDialog.dismiss();
-            onGPSActivated();
-        }
-    }
-
-    @Override
-    public boolean isDialogShowing() {
-        return gpsDialog != null && gpsDialog.isShowing();
     }
 
     @Override
@@ -97,24 +78,11 @@ public class DefaultLocationProvider extends LocationProvider
             LogUtils.logI("GPS is already enabled, getting location...");
             askForLocation(LocationManager.GPS_PROVIDER);
         } else {
-            // GPS is not enabled,
-            if (getConfiguration().defaultProviderConfiguration().askForEnableGPS() && getActivity() != null) {
-                LogUtils.logI("GPS is not enabled, asking user to enable it...");
-                askForEnableGPS();
-            } else {
-                LogUtils.logI("GPS is not enabled, moving on with Network...");
-                getLocationByNetwork();
-            }
+            LogUtils.logI("GPS is not enabled, moving on with Network...");
+            getLocationByNetwork();
         }
     }
 
-    void askForEnableGPS() {
-        DialogProvider gpsDialogProvider = getConfiguration().defaultProviderConfiguration().gpsDialogProvider();
-        gpsDialogProvider.setDialogListener(this);
-
-        gpsDialog = gpsDialogProvider.getDialog(getActivity());
-        gpsDialog.show();
-    }
 
     void onGPSActivated() {
         LogUtils.logI("User activated GPS, listen for location");
@@ -154,9 +122,7 @@ public class DefaultLocationProvider extends LocationProvider
     boolean checkForLastKnowLocation() {
         Location lastKnownLocation = getSourceProvider().getLastKnownLocation(provider);
 
-        if (getSourceProvider().isLocationSufficient(lastKnownLocation,
-                getConfiguration().defaultProviderConfiguration().acceptableTimePeriod(),
-                getConfiguration().defaultProviderConfiguration().acceptableAccuracy())) {
+        if (getSourceProvider().isLocationSufficient(lastKnownLocation, getConfiguration().defaultProviderConfiguration().acceptableTimePeriod(), getConfiguration().defaultProviderConfiguration().acceptableAccuracy())) {
             LogUtils.logI("LastKnowLocation is usable.");
             onLocationReceived(lastKnownLocation);
             return true;
@@ -173,9 +139,7 @@ public class DefaultLocationProvider extends LocationProvider
 
     void notifyProcessChange() {
         if (getListener() != null) {
-            getListener().onProcessTypeChanged(LocationManager.GPS_PROVIDER.equals(provider)
-                    ? ProcessType.GETTING_LOCATION_FROM_GPS_PROVIDER
-                    : ProcessType.GETTING_LOCATION_FROM_NETWORK_PROVIDER);
+            getListener().onProcessTypeChanged(LocationManager.GPS_PROVIDER.equals(provider) ? ProcessType.GETTING_LOCATION_FROM_GPS_PROVIDER : ProcessType.GETTING_LOCATION_FROM_NETWORK_PROVIDER);
         }
     }
 
@@ -186,9 +150,7 @@ public class DefaultLocationProvider extends LocationProvider
     }
 
     long getWaitPeriod() {
-        return LocationManager.GPS_PROVIDER.equals(provider)
-                ? getConfiguration().defaultProviderConfiguration().gpsWaitPeriod()
-                : getConfiguration().defaultProviderConfiguration().networkWaitPeriod();
+        return LocationManager.GPS_PROVIDER.equals(provider) ? getConfiguration().defaultProviderConfiguration().gpsWaitPeriod() : getConfiguration().defaultProviderConfiguration().networkWaitPeriod();
     }
 
     public boolean isNetworkProviderEnabled() {
@@ -273,21 +235,6 @@ public class DefaultLocationProvider extends LocationProvider
                 onLocationFailed(FailType.TIMEOUT);
             }
         }
-    }
-
-    @Override
-    public void onPositiveButtonClick() {
-        boolean activityStarted = startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-        );
-        if (!activityStarted) {
-            onLocationFailed(FailType.VIEW_NOT_REQUIRED_TYPE);
-        }
-    }
-
-    @Override
-    public void onNegativeButtonClick() {
-        LogUtils.logI("User didn't want to enable GPS, so continue with Network Provider");
-        getLocationByNetwork();
     }
 
     // For test purposes

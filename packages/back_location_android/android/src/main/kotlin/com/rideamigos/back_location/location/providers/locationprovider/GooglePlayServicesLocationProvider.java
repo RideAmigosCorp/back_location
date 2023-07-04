@@ -60,11 +60,6 @@ public class GooglePlayServicesLocationProvider extends LocationProvider impleme
     }
 
     @Override
-    public boolean isDialogShowing() {
-        return settingsDialogIsOn;
-    }
-
-    @Override
     public void get() {
         setWaiting(true);
 
@@ -220,13 +215,14 @@ public class GooglePlayServicesLocationProvider extends LocationProvider impleme
 
     void locationRequired() {
         LogUtils.logI("Ask for location update...");
-        if (getConfiguration().googlePlayServicesConfiguration().askForSettingsApi()) {
+        requestLocationUpdate();
+       /* if (getConfiguration().googlePlayServicesConfiguration().askForSettingsApi()) {
             LogUtils.logI("Asking for SettingsApi...");
             getSourceProvider().checkLocationSettings();
         } else {
             LogUtils.logI("SettingsApi is not enabled, requesting for location update...");
             requestLocationUpdate();
-        }
+        }*/
     }
 
     void requestLocationUpdate() {
@@ -239,14 +235,16 @@ public class GooglePlayServicesLocationProvider extends LocationProvider impleme
     }
 
     void settingsApiFail(@FailType int failType) {
-        if (getConfiguration().googlePlayServicesConfiguration().failOnSettingsApiSuspended()) {
-            failed(failType);
-        } else {
+        requestLocationUpdate();
+
+        /* if (getConfiguration().googlePlayServicesConfiguration().failOnSettingsApiSuspended()) {
+             failed(failType);
+         } else {
             LogUtils.logE("Even though settingsApi failed, configuration requires moving on. "
                   + "So requesting location update...");
 
             requestLocationUpdate();
-        }
+         }*/
     }
 
     void failed(@FailType int type) {

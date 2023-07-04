@@ -8,24 +8,19 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.rideamigos.back_location.location.configuration.LocationConfiguration;
-import com.rideamigos.back_location.location.constants.FailType;
-import com.rideamigos.back_location.location.constants.ProcessType;
 import com.rideamigos.back_location.location.helper.LogUtils;
 import com.rideamigos.back_location.location.helper.logging.DefaultLogger;
 import com.rideamigos.back_location.location.helper.logging.Logger;
 import com.rideamigos.back_location.location.listener.LocationListener;
-import com.rideamigos.back_location.location.listener.PermissionListener;
 import com.rideamigos.back_location.location.providers.locationprovider.DispatcherLocationProvider;
 import com.rideamigos.back_location.location.providers.locationprovider.LocationProvider;
-import com.rideamigos.back_location.location.providers.permissionprovider.PermissionProvider;
 import com.rideamigos.back_location.location.view.ContextProcessor;
 
-public class LocationManager implements PermissionListener {
+public class LocationManager  {
 
     private final LocationListener listener;
     private final LocationConfiguration configuration;
     private final LocationProvider activeProvider;
-    private final PermissionProvider permissionProvider;
 
     /**
      * Library tries to log as much as possible in order to make it transparent to see what is actually going on
@@ -52,10 +47,6 @@ public class LocationManager implements PermissionListener {
         this.listener = builder.listener;
         this.configuration = builder.configuration;
         this.activeProvider = builder.activeProvider;
-
-        this.permissionProvider = getConfiguration().permissionConfiguration().permissionProvider();
-        this.permissionProvider.setContextProcessor(builder.contextProcessor);
-        this.permissionProvider.setPermissionListener(this);
     }
 
     public static class Builder {
@@ -187,25 +178,12 @@ public class LocationManager implements PermissionListener {
     }
 
     /**
-     * Provide requestPermissionResult to manager so the it can handle RuntimePermission
-     */
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        permissionProvider.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    /**
      * To determine whether LocationManager is currently waiting for location or it did already receive one!
      */
     public boolean isWaitingForLocation() {
         return activeProvider.isWaiting();
     }
 
-    /**
-     * To determine whether the manager is currently displaying any dialog or not
-     */
-    public boolean isAnyDialogShowing() {
-        return activeProvider.isDialogShowing();
-    }
 
     /**
      * Abort the mission and cancel all location update requests
@@ -218,7 +196,7 @@ public class LocationManager implements PermissionListener {
      * The only method you need to call to trigger getting location process
      */
     public void get() {
-        askForPermission();
+        activeProvider.get();
     }
 
     /**
@@ -228,46 +206,5 @@ public class LocationManager implements PermissionListener {
         return activeProvider;
     }
 
-    void askForPermission() {
-        if (permissionProvider.hasPermission()) {
-            permissionGranted(true);
-        } else {
-            if (listener != null) {
-                listener.onProcessTypeChanged(ProcessType.ASKING_PERMISSIONS);
-            }
 
-            if (permissionProvider.requestPermissions()) {
-                LogUtils.logI("Waiting until we receive any callback from PermissionProvider...");
-            } else {
-                LogUtils.logI("Couldn't get permission, Abort!");
-                failed(FailType.PERMISSION_DENIED);
-            }
-        }
-    }
-
-    private void permissionGranted(boolean alreadyHadPermission) {
-        LogUtils.logI("We got permission!");
-
-        if (listener != null) {
-            listener.onPermissionGranted(alreadyHadPermission, false);
-        }
-
-        activeProvider.get();
-    }
-
-    private void failed(@FailType int type) {
-        if (listener != null) {
-            listener.onLocationFailed(type);
-        }
-    }
-
-    @Override
-    public void onPermissionsGranted() {
-        permissionGranted(false);
-    }
-
-    @Override
-    public void onPermissionsDenied() {
-        failed(FailType.PERMISSION_DENIED);
-    }
 }
