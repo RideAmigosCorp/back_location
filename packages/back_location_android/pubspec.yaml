@@ -1,7 +1,5 @@
 name: back_location_android
 description: Android implementation of the location plugin
-homepage: https://docs.page/Lyokone/flutterlocation
-repository: https://github.com/Lyokone/flutterlocation
 version: 1.0.0
 publish_to: none
 

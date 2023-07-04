@@ -1,7 +1,5 @@
 name: back_location_platform_interface
-description: A common platform interface for the location plugin.
-homepage: https://docs.page/Lyokone/flutterlocation
-repository: https://github.com/Lyokone/flutterlocation
+description: A common platform interface for the back_location plugin.
 version: 1.0.0
 
 environment:
