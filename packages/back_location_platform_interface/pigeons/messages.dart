@@ -30,12 +30,14 @@ class PigeonLocationData {
 
 class PigeonNotificationSettings {
   String? channelName;
+  String? channelDescription;
   String? title;
   String? iconName;
   String? subtitle;
   String? description;
   String? color;
   bool? onTapBringToFront;
+  bool? setOngoing;
 }
 
 enum PigeonLocationAccuracy { powerSave, low, balanced, high, navigation }

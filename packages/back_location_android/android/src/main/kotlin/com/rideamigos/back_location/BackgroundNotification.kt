@@ -16,12 +16,14 @@ const val kDefaultNotificationIconName: String = "navigation_empty_icon"
 
 data class NotificationOptions(
     val channelName: String = kDefaultChannelName,
+    val channelDescription: String? = null,
     val title: String = kDefaultNotificationTitle,
     val iconName: String = kDefaultNotificationIconName,
     val subtitle: String? = null,
     val description: String? = null,
     val color: Int? = null,
-    val onTapBringToFront: Boolean = false
+    val onTapBringToFront: Boolean = false,
+    val setOngoing: Boolean = false,
 )
 
 class BackgroundNotification(
@@ -42,21 +44,24 @@ class BackgroundNotification(
     }
 
     private fun buildBringToFrontIntent(): PendingIntent? {
-        val intent: Intent? = context.packageManager
+        val intent = context.packageManager
             .getLaunchIntentForPackage(context.packageName)
-            ?.setPackage(null)
-            ?.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
 
-        return if (intent != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_MUTABLE)
-        } else if (intent != null) {
-            PendingIntent.getActivity(context, 0, intent, 0)
-        } else {
-            null
+        if (intent != null) {
+            intent.setPackage(null)
+            intent.flags =
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+            var flags = PendingIntent.FLAG_UPDATE_CURRENT
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                flags = flags or PendingIntent.FLAG_IMMUTABLE
+            }
+            return PendingIntent.getActivity(context, 0, intent, flags)
         }
+
+        return null
     }
 
-    private fun updateChannel(channelName: String) {
+    private fun updateChannel(channelName: String, channelDescription: String?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = NotificationManagerCompat.from(context)
             val channel = NotificationChannel(
@@ -65,6 +70,10 @@ class BackgroundNotification(
                 NotificationManager.IMPORTANCE_NONE
             ).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+                if(channelDescription != null){
+                    description =channelDescription
+                }
+
             }
             notificationManager.createNotificationChannel(channel)
         }
@@ -82,6 +91,7 @@ class BackgroundNotification(
             .setSmallIcon(iconId)
             .setContentText(options.subtitle)
             .setSubText(options.description)
+            .setOngoing(options.setOngoing)
 
         builder = if (options.color != null) {
             builder.setColor(options.color).setColorized(true)
@@ -103,7 +113,7 @@ class BackgroundNotification(
 
     fun updateOptions(options: NotificationOptions, isVisible: Boolean) {
         if (options.channelName != this.options.channelName) {
-            updateChannel(options.channelName)
+            updateChannel(options.channelName, options.channelDescription)
         }
 
         updateNotification(options, isVisible)
@@ -112,7 +122,7 @@ class BackgroundNotification(
     }
 
     fun build(): Notification {
-        updateChannel(options.channelName)
+        updateChannel(options.channelName, options.channelDescription)
         return builder.build()
     }
 }

@@ -18,8 +18,8 @@ class FlutterLocationService() : Service(),
     companion object {
         private const val TAG = "FlutterLocationService"
 
-        private const val ONGOING_NOTIFICATION_ID = 75418
-        private const val CHANNEL_ID = "flutter_location_channel_01"
+        private const val ONGOING_NOTIFICATION_ID = 75131
+        private const val CHANNEL_ID = "back_location_channel_01"
     }
 
     // Binder given to clients

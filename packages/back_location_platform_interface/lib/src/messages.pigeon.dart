@@ -105,15 +105,19 @@ class PigeonLocationData {
 class PigeonNotificationSettings {
   PigeonNotificationSettings({
     this.channelName,
+    this.channelDescription,
     this.title,
     this.iconName,
     this.subtitle,
     this.description,
     this.color,
     this.onTapBringToFront,
+    this.setOngoing,
   });
 
   String? channelName;
+
+  String? channelDescription;
 
   String? title;
 
@@ -127,15 +131,19 @@ class PigeonNotificationSettings {
 
   bool? onTapBringToFront;
 
+  bool? setOngoing;
+
   Object encode() {
     return <Object?>[
       channelName,
+      channelDescription,
       title,
       iconName,
       subtitle,
       description,
       color,
       onTapBringToFront,
+      setOngoing,
     ];
   }
 
@@ -143,12 +151,14 @@ class PigeonNotificationSettings {
     result as List<Object?>;
     return PigeonNotificationSettings(
       channelName: result[0] as String?,
-      title: result[1] as String?,
-      iconName: result[2] as String?,
-      subtitle: result[3] as String?,
-      description: result[4] as String?,
-      color: result[5] as String?,
-      onTapBringToFront: result[6] as bool?,
+      channelDescription: result[1] as String?,
+      title: result[2] as String?,
+      iconName: result[3] as String?,
+      subtitle: result[4] as String?,
+      description: result[5] as String?,
+      color: result[6] as String?,
+      onTapBringToFront: result[7] as bool?,
+      setOngoing: result[8] as bool?,
     );
   }
 }

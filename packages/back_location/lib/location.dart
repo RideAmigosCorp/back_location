@@ -127,21 +127,25 @@ Future<void> setLocationSettings({
 /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
 Future<bool> updateBackgroundNotification({
   String? channelName,
+  String? channelDescription,
   String? title,
   String? iconName,
   String? subtitle,
   String? description,
   Color? color,
   bool? onTapBringToFront,
+  bool? setOngoing,
 }) async {
   final response = await _platform.updateBackgroundNotification(
     channelName: channelName,
+    channelDescription: channelDescription,
     title: title,
     iconName: iconName,
     subtitle: subtitle,
     description: description,
     color: color,
     onTapBringToFront: onTapBringToFront,
+    setOngoing: setOngoing,
   );
   if (response == null) {
     throw Exception('Error while getting Network status');

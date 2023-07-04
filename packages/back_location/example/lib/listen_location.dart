@@ -40,6 +40,7 @@ class _ListenLocationWidgetState extends State<ListenLocationWidget> {
         subtitle:
             '''Location: ${currentLocation.latitude}, ${currentLocation.longitude}''',
         onTapBringToFront: true,
+        setOngoing: true,
       );
     });
     setState(() {});

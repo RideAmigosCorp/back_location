@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:back_location/location.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ChangeNotificationWidget extends StatefulWidget {
   const ChangeNotificationWidget({super.key});
@@ -19,9 +20,17 @@ class _ChangeNotificationWidgetState extends State<ChangeNotificationWidget> {
     text: 'Location background service',
   );
 
+  final TextEditingController _channelDescriptionController =
+      TextEditingController(
+    text:
+        'This channel is used to ensure that tracking works in the background',
+  );
+
   final TextEditingController _titleController = TextEditingController(
     text: 'Location background service running',
   );
+
+  bool _ongoing = false;
 
   String? _iconName = 'navigation_empty_icon';
 
@@ -29,6 +38,7 @@ class _ChangeNotificationWidgetState extends State<ChangeNotificationWidget> {
   void dispose() {
     _channelController.dispose();
     _titleController.dispose();
+    _channelDescriptionController.dispose();
     super.dispose();
   }
 
@@ -56,6 +66,13 @@ class _ChangeNotificationWidgetState extends State<ChangeNotificationWidget> {
               controller: _channelController,
               decoration: const InputDecoration(
                 labelText: 'Channel Name',
+              ),
+            ),
+            const SizedBox(height: 4),
+            TextFormField(
+              controller: _channelDescriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Channel Description',
               ),
             ),
             const SizedBox(height: 4),
@@ -89,11 +106,24 @@ class _ChangeNotificationWidgetState extends State<ChangeNotificationWidget> {
               ],
             ),
             const SizedBox(height: 4),
+            SwitchListTile(
+              value: _ongoing,
+              title: const Text('Set ongoing'),
+              onChanged: (value) {
+                setState(() {
+                  _ongoing = value;
+                });
+              },
+            ),
+            const SizedBox(height: 4),
             ElevatedButton(
-              onPressed: () {
-                updateBackgroundNotification(
+              onPressed: () async {
+                await Permission.notification.request();
+                await updateBackgroundNotification(
                   channelName: _channelController.text,
+                  channelDescription: _channelDescriptionController.text,
                   title: _titleController.text,
+                  setOngoing: _ongoing,
                 );
               },
               child: const Text('Change'),

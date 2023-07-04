@@ -117,36 +117,42 @@ data class PigeonLocationData (
 /** Generated class from Pigeon that represents data sent in messages. */
 data class PigeonNotificationSettings (
   val channelName: String? = null,
+  val channelDescription: String? = null,
   val title: String? = null,
   val iconName: String? = null,
   val subtitle: String? = null,
   val description: String? = null,
   val color: String? = null,
-  val onTapBringToFront: Boolean? = null
+  val onTapBringToFront: Boolean? = null,
+  val setOngoing: Boolean? = null
 
 ) {
   companion object {
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): PigeonNotificationSettings {
       val channelName = list[0] as String?
-      val title = list[1] as String?
-      val iconName = list[2] as String?
-      val subtitle = list[3] as String?
-      val description = list[4] as String?
-      val color = list[5] as String?
-      val onTapBringToFront = list[6] as Boolean?
-      return PigeonNotificationSettings(channelName, title, iconName, subtitle, description, color, onTapBringToFront)
+      val channelDescription = list[1] as String?
+      val title = list[2] as String?
+      val iconName = list[3] as String?
+      val subtitle = list[4] as String?
+      val description = list[5] as String?
+      val color = list[6] as String?
+      val onTapBringToFront = list[7] as Boolean?
+      val setOngoing = list[8] as Boolean?
+      return PigeonNotificationSettings(channelName, channelDescription, title, iconName, subtitle, description, color, onTapBringToFront, setOngoing)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       channelName,
+      channelDescription,
       title,
       iconName,
       subtitle,
       description,
       color,
       onTapBringToFront,
+      setOngoing,
     )
   }
 }

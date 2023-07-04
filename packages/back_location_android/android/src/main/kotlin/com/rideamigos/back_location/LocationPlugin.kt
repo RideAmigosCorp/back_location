@@ -48,7 +48,6 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
 
     private var callbackResultsNeedingLocation: MutableList<(Result<PigeonLocationData>) -> Unit> =
         mutableListOf()
-    // MutableList<Result<PigeonLocationData?>> = mutableListOf()
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         LocationHostApi.setUp(flutterPluginBinding.binaryMessenger, this)
@@ -331,6 +330,8 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
                 description = settings.subtitle,
                 color = if (settings.color != null) Color.parseColor(settings.color) else null,
                 onTapBringToFront = settings.onTapBringToFront ?: false,
+                setOngoing = settings.setOngoing ?: false,
+                channelDescription = settings.channelDescription
             )
         )
 
