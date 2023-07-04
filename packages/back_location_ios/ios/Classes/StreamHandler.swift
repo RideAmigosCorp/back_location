@@ -1,11 +1,5 @@
-//
-//  StreamHandler.swift
-//  location_ios
-//
-//  Created by Guillaume Bernos on 10/06/2022.
-//
-
 import CoreLocation
+import Flutter
 import Foundation
 import SwiftLocation
 
@@ -74,6 +68,7 @@ class StreamHandler: NSObject, FlutterStreamHandler {
         $0.accuracy = .house
         $0.minTimeInterval = 2
         $0.activityType = .automotiveNavigation
+        $0.avoidRequestAuthorization = true
       }
 
     locationRequest?.then { result in

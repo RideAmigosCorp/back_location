@@ -16,6 +16,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     let eventChannel = FlutterEventChannel(
       name: "lyokone/location_stream", binaryMessenger: messenger)
     self.streamHandler = StreamHandler()
+
     eventChannel.setStreamHandler(self.streamHandler)
 
     registrar.addApplicationDelegate(self)
@@ -53,9 +54,9 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
   }
 
   static func locationToData(_ location: CLLocation) -> PigeonLocationData {
-      return PigeonLocationData(
-      latitude:  location.coordinate.latitude,
-      longitude:location.coordinate.longitude,
+    return PigeonLocationData(
+      latitude: location.coordinate.latitude,
+      longitude: location.coordinate.longitude,
       accuracy: location.horizontalAccuracy,
       altitude: location.altitude,
       bearing: location.course,
@@ -75,7 +76,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     let defaultOption = GPSLocationOptions()
     defaultOption.minTimeInterval = 2
     defaultOption.subscription = .single
-
+    defaultOption.avoidRequestAuthorization = true
     return defaultOption
   }
 
@@ -92,8 +93,6 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     case .high:
       return GPSLocationOptions.Accuracy.room
     case .navigation:
-      return GPSLocationOptions.Accuracy.room
-    @unknown default:
       return GPSLocationOptions.Accuracy.room
     }
   }
@@ -131,6 +130,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
 
   func setLocationSettings(settings: PigeonLocationSettings) throws -> Bool {
     globalPigeonLocationSettings = settings
+    streamHandler?.setPigeonLocationSettings(settings)
 
     return true
   }

@@ -1,7 +1,5 @@
 name: back_location_ios
 description: iOS implementation of the location plugin
-homepage: https://docs.page/Lyokone/flutterlocation
-repository: https://github.com/Lyokone/flutterlocation
 version: 1.0.0
 
 environment:
@@ -13,8 +11,8 @@ flutter:
     implements: back_location
     platforms:
       ios:
-        pluginClass: LocationPlugin
-        dartPluginClass: LocationIOS
+        pluginClass: SwiftLocationPlugin
+        dartPluginClass: BackLocationIOS
 
 dependencies:
   flutter:
