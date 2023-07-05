@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:back_location/location.dart';
+import 'package:back_location/back_location.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';

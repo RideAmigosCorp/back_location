@@ -134,21 +134,22 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
             elapsedRealTimeNanos = location.elapsedRealtimeNanos.toDouble(),
             speed = location.speed.toDouble(),
             satellites = location.extras?.getInt("satellites")?.toLong(),
+            time = location.time.toDouble()
         )
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             locationData = locationData.copy(
-                bearingAccuracyDegrees = locationData.bearingAccuracyDegrees,
-                speedAccuracy = locationData.speedAccuracy,
-                verticalAccuracy = locationData.verticalAccuracy
+                bearingAccuracyDegrees = location.bearingAccuracyDegrees.toDouble(),
+                speedAccuracy = location.speedAccuracyMetersPerSecond.toDouble(),
+                verticalAccuracy = location.verticalAccuracyMeters.toDouble()
             )
 
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             locationData =
-                locationData.copy(elapsedRealTimeUncertaintyNanos = locationData.elapsedRealTimeUncertaintyNanos)
+                locationData.copy(elapsedRealTimeUncertaintyNanos = location.elapsedRealtimeUncertaintyNanos)
         }
 
 
