@@ -64,23 +64,15 @@ class LocationData {
   final double? verticalAccuracy;
 
   /// In meters above the WGS 84 reference ellipsoid. Derived from GPS informations.
-  ///
-  /// Always 0 on Web
   final double? altitude;
 
   /// In meters/second
-  ///
-  /// Always 0 on Web
   final double? speed;
 
   /// In meters/second
-  ///
-  /// Always 0 on Web
   final double? speedAccuracy;
 
   /// Bearing is the horizontal direction of travel of this device, in degrees
-  ///
-  /// Always 0 on Web
   final double? bearing;
 
   /// Get the estimated bearing accuracy of this location, in degrees.
@@ -88,7 +80,7 @@ class LocationData {
   /// https://developer.android.com/reference/android/location/Location#getBearingAccuracyDegrees()
   final double? bearingAccuracyDegrees;
 
-  /// timestamp of the LocationData
+  /// timestamp in local time in milliseconds of the LocationData
   final double? time;
 
   /// Is the location currently mocked
