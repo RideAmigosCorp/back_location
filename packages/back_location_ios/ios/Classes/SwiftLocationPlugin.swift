@@ -66,7 +66,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
       satellites: nil,
       speed: location.speed,
       speedAccuracy: location.speedAccuracy,
-      time: location.timestamp.timeIntervalSince1970,
+      time: location.timestamp.timeIntervalSince1970 * 1000,
       verticalAccuracy: location.verticalAccuracy,
       isMock: false)
 
