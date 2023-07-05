@@ -1,4 +1,4 @@
-import 'package:back_location/location.dart';
+import 'package:back_location/back_location.dart';
 import 'package:flutter/material.dart';
 
 class ChangeSettings extends StatefulWidget {

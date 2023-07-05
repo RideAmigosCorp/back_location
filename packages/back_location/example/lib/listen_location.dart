@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:back_location/location.dart';
+import 'package:back_location/back_location.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
