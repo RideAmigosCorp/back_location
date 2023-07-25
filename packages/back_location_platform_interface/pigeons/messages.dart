@@ -31,10 +31,10 @@ class PigeonLocationData {
 class PigeonNotificationSettings {
   String? channelName;
   String? channelDescription;
-  String? title;
   String? iconName;
-  String? subtitle;
-  String? description;
+  String? contentTitle;
+  String? contentText;
+  String? subText;
   String? color;
   bool? onTapBringToFront;
   bool? setOngoing;

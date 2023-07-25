@@ -116,10 +116,10 @@ struct PigeonLocationData {
 struct PigeonNotificationSettings {
   var channelName: String? = nil
   var channelDescription: String? = nil
-  var title: String? = nil
   var iconName: String? = nil
-  var subtitle: String? = nil
-  var description: String? = nil
+  var contentTitle: String? = nil
+  var contentText: String? = nil
+  var subText: String? = nil
   var color: String? = nil
   var onTapBringToFront: Bool? = nil
   var setOngoing: Bool? = nil
@@ -127,10 +127,10 @@ struct PigeonNotificationSettings {
   static func fromList(_ list: [Any?]) -> PigeonNotificationSettings? {
     let channelName: String? = nilOrValue(list[0])
     let channelDescription: String? = nilOrValue(list[1])
-    let title: String? = nilOrValue(list[2])
-    let iconName: String? = nilOrValue(list[3])
-    let subtitle: String? = nilOrValue(list[4])
-    let description: String? = nilOrValue(list[5])
+    let iconName: String? = nilOrValue(list[2])
+    let contentTitle: String? = nilOrValue(list[3])
+    let contentText: String? = nilOrValue(list[4])
+    let subText: String? = nilOrValue(list[5])
     let color: String? = nilOrValue(list[6])
     let onTapBringToFront: Bool? = nilOrValue(list[7])
     let setOngoing: Bool? = nilOrValue(list[8])
@@ -138,10 +138,10 @@ struct PigeonNotificationSettings {
     return PigeonNotificationSettings(
       channelName: channelName,
       channelDescription: channelDescription,
-      title: title,
       iconName: iconName,
-      subtitle: subtitle,
-      description: description,
+      contentTitle: contentTitle,
+      contentText: contentText,
+      subText: subText,
       color: color,
       onTapBringToFront: onTapBringToFront,
       setOngoing: setOngoing
@@ -151,10 +151,10 @@ struct PigeonNotificationSettings {
     return [
       channelName,
       channelDescription,
-      title,
       iconName,
-      subtitle,
-      description,
+      contentTitle,
+      contentText,
+      subText,
       color,
       onTapBringToFront,
       setOngoing,

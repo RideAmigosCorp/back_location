@@ -106,10 +106,10 @@ class PigeonNotificationSettings {
   PigeonNotificationSettings({
     this.channelName,
     this.channelDescription,
-    this.title,
     this.iconName,
-    this.subtitle,
-    this.description,
+    this.contentTitle,
+    this.contentText,
+    this.subText,
     this.color,
     this.onTapBringToFront,
     this.setOngoing,
@@ -119,13 +119,13 @@ class PigeonNotificationSettings {
 
   String? channelDescription;
 
-  String? title;
-
   String? iconName;
 
-  String? subtitle;
+  String? contentTitle;
 
-  String? description;
+  String? contentText;
+
+  String? subText;
 
   String? color;
 
@@ -137,10 +137,10 @@ class PigeonNotificationSettings {
     return <Object?>[
       channelName,
       channelDescription,
-      title,
       iconName,
-      subtitle,
-      description,
+      contentTitle,
+      contentText,
+      subText,
       color,
       onTapBringToFront,
       setOngoing,
@@ -152,10 +152,10 @@ class PigeonNotificationSettings {
     return PigeonNotificationSettings(
       channelName: result[0] as String?,
       channelDescription: result[1] as String?,
-      title: result[2] as String?,
-      iconName: result[3] as String?,
-      subtitle: result[4] as String?,
-      description: result[5] as String?,
+      iconName: result[2] as String?,
+      contentTitle: result[3] as String?,
+      contentText: result[4] as String?,
+      subText: result[5] as String?,
       color: result[6] as String?,
       onTapBringToFront: result[7] as bool?,
       setOngoing: result[8] as bool?,

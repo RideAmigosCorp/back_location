@@ -325,14 +325,15 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
     override fun changeNotificationSettings(settings: PigeonNotificationSettings): Boolean {
         flutterLocationService?.changeNotificationOptions(
             NotificationOptions(
-                title = settings.title ?: kDefaultNotificationTitle,
+                contentTitle = settings.contentTitle ?: kDefaultNotificationTitle,
                 iconName = settings.iconName ?: kDefaultNotificationIconName,
-                subtitle = settings.subtitle,
-                description = settings.subtitle,
+                contentText = settings.contentText,
+                subText = settings.subText,
                 color = if (settings.color != null) Color.parseColor(settings.color) else null,
                 onTapBringToFront = settings.onTapBringToFront ?: false,
                 setOngoing = settings.setOngoing ?: false,
-                channelDescription = settings.channelDescription
+                channelDescription = settings.channelDescription,
+                channelName = settings.channelName ?: kDefaultChannelName,
             )
         )
 

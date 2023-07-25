@@ -17,10 +17,10 @@ const val kDefaultNotificationIconName: String = "navigation_empty_icon"
 data class NotificationOptions(
     val channelName: String = kDefaultChannelName,
     val channelDescription: String? = null,
-    val title: String = kDefaultNotificationTitle,
+    val contentTitle: String = kDefaultNotificationTitle,
     val iconName: String = kDefaultNotificationIconName,
-    val subtitle: String? = null,
-    val description: String? = null,
+    val contentText: String? = null,
+    val subText: String? = null,
     val color: Int? = null,
     val onTapBringToFront: Boolean = false,
     val setOngoing: Boolean = false,
@@ -87,10 +87,10 @@ class BackgroundNotification(
             if (it != 0) it else getDrawableId(kDefaultNotificationIconName)
         }
         builder = builder
-            .setContentTitle(options.title)
+            .setContentTitle(options.contentTitle)
             .setSmallIcon(iconId)
-            .setContentText(options.subtitle)
-            .setSubText(options.description)
+            .setContentText(options.contentText)
+            .setSubText(options.subText)
             .setOngoing(options.setOngoing)
 
         builder = if (options.color != null) {

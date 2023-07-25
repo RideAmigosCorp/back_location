@@ -122,7 +122,7 @@ class _ChangeNotificationWidgetState extends State<ChangeNotificationWidget> {
                 await updateBackgroundNotification(
                   channelName: _channelController.text,
                   channelDescription: _channelDescriptionController.text,
-                  title: _titleController.text,
+                  contentTitle: _titleController.text,
                   setOngoing: _ongoing,
                 );
               },

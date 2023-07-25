@@ -37,10 +37,15 @@ class _ListenLocationWidgetState extends State<ListenLocationWidget> {
         _location = currentLocation;
       });
       await updateBackgroundNotification(
-        subtitle:
+        channelName: 'channel name',
+        channelDescription: 'channel desc',
+        contentTitle: 'content title',
+        subText: 'sub text',
+        contentText:
             '''Location: ${currentLocation.latitude}, ${currentLocation.longitude}''',
         onTapBringToFront: true,
         setOngoing: true,
+        iconName: 'circle',
       );
     });
     setState(() {});

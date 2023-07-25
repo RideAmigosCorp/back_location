@@ -50,10 +50,10 @@ abstract class LocationPlatform extends PlatformInterface {
   Future<bool?> updateBackgroundNotification({
     String? channelName,
     String? channelDescription,
-    String? title,
     String? iconName,
-    String? subtitle,
-    String? description,
+    String? contentTitle,
+    String? contentText,
+    String? subText,
     Color? color,
     bool? onTapBringToFront,
     bool? setOngoing,

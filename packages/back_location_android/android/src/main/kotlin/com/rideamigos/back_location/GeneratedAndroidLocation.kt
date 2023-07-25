@@ -118,10 +118,10 @@ data class PigeonLocationData (
 data class PigeonNotificationSettings (
   val channelName: String? = null,
   val channelDescription: String? = null,
-  val title: String? = null,
   val iconName: String? = null,
-  val subtitle: String? = null,
-  val description: String? = null,
+  val contentTitle: String? = null,
+  val contentText: String? = null,
+  val subText: String? = null,
   val color: String? = null,
   val onTapBringToFront: Boolean? = null,
   val setOngoing: Boolean? = null
@@ -132,24 +132,24 @@ data class PigeonNotificationSettings (
     fun fromList(list: List<Any?>): PigeonNotificationSettings {
       val channelName = list[0] as String?
       val channelDescription = list[1] as String?
-      val title = list[2] as String?
-      val iconName = list[3] as String?
-      val subtitle = list[4] as String?
-      val description = list[5] as String?
+      val iconName = list[2] as String?
+      val contentTitle = list[3] as String?
+      val contentText = list[4] as String?
+      val subText = list[5] as String?
       val color = list[6] as String?
       val onTapBringToFront = list[7] as Boolean?
       val setOngoing = list[8] as Boolean?
-      return PigeonNotificationSettings(channelName, channelDescription, title, iconName, subtitle, description, color, onTapBringToFront, setOngoing)
+      return PigeonNotificationSettings(channelName, channelDescription, iconName, contentTitle, contentText, subText, color, onTapBringToFront, setOngoing)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       channelName,
       channelDescription,
-      title,
       iconName,
-      subtitle,
-      description,
+      contentTitle,
+      contentText,
+      subText,
       color,
       onTapBringToFront,
       setOngoing,
