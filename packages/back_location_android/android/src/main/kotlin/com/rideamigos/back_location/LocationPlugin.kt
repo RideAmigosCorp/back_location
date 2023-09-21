@@ -1,10 +1,5 @@
 package com.rideamigos.back_location
 
-import LocationHostApi
-import PigeonLocationAccuracy
-import PigeonLocationData
-import PigeonLocationSettings
-import PigeonNotificationSettings
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
