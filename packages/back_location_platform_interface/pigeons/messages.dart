@@ -9,6 +9,9 @@ import 'package:pigeon/pigeon.dart';
     kotlinOut:
         '../back_location_android/android/src/main/kotlin/com/rideamigos/back_location/GeneratedAndroidLocation.kt',
     swiftOut: '../back_location_ios/ios/Classes/Messages.swift',
+    kotlinOptions: KotlinOptions(
+      package: 'com.rideamigos.back_location',
+    ),
   ),
 )
 class PigeonLocationData {
