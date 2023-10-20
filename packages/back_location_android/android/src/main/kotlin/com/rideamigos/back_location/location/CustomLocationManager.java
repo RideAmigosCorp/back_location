@@ -16,7 +16,7 @@ import com.rideamigos.back_location.location.providers.locationprovider.Dispatch
 import com.rideamigos.back_location.location.providers.locationprovider.LocationProvider;
 import com.rideamigos.back_location.location.view.ContextProcessor;
 
-public class LocationManager  {
+public class CustomLocationManager {
 
     private final LocationListener listener;
     private final LocationConfiguration configuration;
@@ -43,7 +43,7 @@ public class LocationManager  {
     /**
      * To create an instance of this manager you MUST specify a LocationConfiguration
      */
-    private LocationManager(Builder builder) {
+    private CustomLocationManager(Builder builder) {
         this.listener = builder.listener;
         this.configuration = builder.configuration;
         this.activeProvider = builder.activeProvider;
@@ -122,7 +122,7 @@ public class LocationManager  {
             return this;
         }
 
-        public LocationManager build() {
+        public CustomLocationManager build() {
             if (contextProcessor == null) {
                 throw new IllegalStateException("You must set a context to LocationManager.");
             }
@@ -137,7 +137,7 @@ public class LocationManager  {
 
             this.activeProvider.configure(contextProcessor, configuration, listener);
 
-            return new LocationManager(this);
+            return new CustomLocationManager(this);
         }
     }
 

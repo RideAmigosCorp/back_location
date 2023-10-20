@@ -152,3 +152,13 @@ Future<bool> updateBackgroundNotification({
   }
   return response;
 }
+
+/// Checks if the android location NETWORK_PROVIDER is enabled
+Future<bool> isAndroidNetworkProviderEnabled() {
+  return _platform.isAndroidNetworkProviderEnabled();
+}
+
+/// Prompts the user to enable the NETWORK_PROVIDER if it is disabled
+Future<void> promptUserToEnableAndroidNetworkProvider() {
+  return _platform.promptUserToEnableAndroidNetworkProvider();
+}

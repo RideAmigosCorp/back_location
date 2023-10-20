@@ -7,16 +7,20 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Color
 import android.location.Location
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.provider.Settings
 import android.util.Log
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
 import com.rideamigos.back_location.FlutterLocationService.LocalBinder
-import com.rideamigos.back_location.location.LocationManager
-import com.rideamigos.back_location.location.configuration.*
+import com.rideamigos.back_location.location.CustomLocationManager
 import com.rideamigos.back_location.location.configuration.Configurations.defaultConfiguration
+import com.rideamigos.back_location.location.configuration.DefaultProviderConfiguration
+import com.rideamigos.back_location.location.configuration.GooglePlayServicesConfiguration
+import com.rideamigos.back_location.location.configuration.LocationConfiguration
 import com.rideamigos.back_location.location.constants.FailType
 import com.rideamigos.back_location.location.constants.ProcessType
 import com.rideamigos.back_location.location.listener.LocationListener
@@ -26,7 +30,6 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.EventChannel.StreamHandler
 
-
 class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationHostApi,
     StreamHandler {
     private var context: Context? = null
@@ -34,8 +37,9 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
 
     private var globalLocationConfigurationBuilder: LocationConfiguration.Builder =
         defaultConfiguration()
-    private var locationManager: LocationManager? = null
-    private var streamLocationManager: LocationManager? = null
+    private var customLocationManager: CustomLocationManager? = null
+    private var androidLocationManager: LocationManager? = null
+    private var streamCustomLocationManager: CustomLocationManager? = null
     private var flutterLocationService: FlutterLocationService? = null
 
     private var eventChannel: EventChannel? = null
@@ -49,6 +53,8 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
         context = flutterPluginBinding.applicationContext
         eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, STREAM_CHANNEL_NAME)
         eventChannel?.setStreamHandler(this)
+        androidLocationManager =
+            context!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager?;
     }
 
 
@@ -102,15 +108,19 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
             ProcessType.ASKING_PERMISSIONS -> {
                 Log.d("Location", "ASKING_PERMISSIONS")
             }
+
             ProcessType.GETTING_LOCATION_FROM_CUSTOM_PROVIDER -> {
                 Log.d("Location", "GETTING_LOCATION_FROM_CUSTOM_PROVIDER")
             }
+
             ProcessType.GETTING_LOCATION_FROM_GOOGLE_PLAY_SERVICES -> {
                 Log.d("Location", "GETTING_LOCATION_FROM_GOOGLE_PLAY_SERVICES")
             }
+
             ProcessType.GETTING_LOCATION_FROM_GPS_PROVIDER -> {
                 Log.d("Location", "GETTING_LOCATION_FROM_GPS_PROVIDER")
             }
+
             ProcessType.GETTING_LOCATION_FROM_NETWORK_PROVIDER -> {
                 Log.d("Location", "GETTING_LOCATION_FROM_NETWORK_PROVIDER")
             }
@@ -186,18 +196,25 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
         when (type) {
             FailType.GOOGLE_PLAY_SERVICES_NOT_AVAILABLE -> {
             }
+
             FailType.GOOGLE_PLAY_SERVICES_SETTINGS_DENIED -> {
             }
+
             FailType.GOOGLE_PLAY_SERVICES_SETTINGS_DIALOG -> {
             }
+
             FailType.NETWORK_NOT_AVAILABLE -> {
             }
+
             FailType.TIMEOUT -> {
             }
+
             FailType.UNKNOWN -> {
             }
+
             FailType.VIEW_DETACHED -> {
             }
+
             FailType.VIEW_NOT_REQUIRED_TYPE -> {
             }
         }
@@ -220,22 +237,22 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
     ) {
         callbackResultsNeedingLocation.add(callback)
 
-        val isListening = streamLocationManager != null
+        val isListening = streamCustomLocationManager != null
 
         if (settings != null) {
             val locationConfiguration = getLocationConfigurationFromSettings(settings)
-            locationManager = LocationManager.Builder(context!!)
+            customLocationManager = CustomLocationManager.Builder(context!!)
                 .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
                 .configuration(locationConfiguration.build()).notify(this).build()
 
-            locationManager?.get()
+            customLocationManager?.get()
         } else {
             if (!isListening) {
-                locationManager = LocationManager.Builder(context!!)
+                customLocationManager = CustomLocationManager.Builder(context!!)
                     .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
                     .configuration(globalLocationConfigurationBuilder.build()).notify(this).build()
 
-                locationManager?.get()
+                customLocationManager?.get()
             }
 
         }
@@ -304,14 +321,14 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
 
         globalLocationConfigurationBuilder = locationConfiguration
 
-        if (streamLocationManager != null) {
-            streamLocationManager?.cancel()
-            streamLocationManager = LocationManager.Builder(context!!)
+        if (streamCustomLocationManager != null) {
+            streamCustomLocationManager?.cancel()
+            streamCustomLocationManager = CustomLocationManager.Builder(context!!)
                 .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
                 .configuration(globalLocationConfigurationBuilder.keepTracking(true).build())
                 .notify(this).build()
 
-            streamLocationManager?.get()
+            streamCustomLocationManager?.get()
         }
 
         return true
@@ -344,16 +361,31 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
         return true
     }
 
+    override fun isAndroidNetworkProviderEnabled(): Boolean {
+        return try {
+            androidLocationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ?: false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    override fun promptUserToEnableAndroidNetworkProvider() {
+        if (!isAndroidNetworkProviderEnabled()) {
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            activity!!.startActivity(intent)
+        }
+
+    }
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
         val inBackground = arguments as Boolean
         eventSink = events
-        streamLocationManager = LocationManager.Builder(context!!)
+        streamCustomLocationManager = CustomLocationManager.Builder(context!!)
             .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
             .configuration(globalLocationConfigurationBuilder.keepTracking(true).build())
             .notify(this).build()
 
-        streamLocationManager?.get()
+        streamCustomLocationManager?.get()
         if (inBackground) {
             flutterLocationService?.enableBackgroundMode()
         }
@@ -363,8 +395,8 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener, LocationH
         flutterLocationService?.disableBackgroundMode()
 
         eventSink = null
-        streamLocationManager?.cancel()
-        streamLocationManager = null
+        streamCustomLocationManager?.cancel()
+        streamCustomLocationManager = null
     }
 
     companion object {

@@ -6,34 +6,34 @@ import android.os.Bundle;
 
 import androidx.annotation.CallSuper;
 
-import com.rideamigos.back_location.location.LocationManager;
+import com.rideamigos.back_location.location.CustomLocationManager;
 import com.rideamigos.back_location.location.configuration.LocationConfiguration;
 import com.rideamigos.back_location.location.constants.ProcessType;
 import com.rideamigos.back_location.location.listener.LocationListener;
 
 public abstract class LocationBaseService extends Service implements LocationListener {
 
-    private LocationManager locationManager;
+    private CustomLocationManager customLocationManager;
 
     public abstract LocationConfiguration getLocationConfiguration();
 
     @CallSuper
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        locationManager = new LocationManager.Builder(getApplicationContext())
+        customLocationManager = new CustomLocationManager.Builder(getApplicationContext())
               .configuration(getLocationConfiguration())
               .notify(this)
               .build();
         return super.onStartCommand(intent, flags, startId);
     }
 
-    protected LocationManager getLocationManager() {
-        return locationManager;
+    protected CustomLocationManager getLocationManager() {
+        return customLocationManager;
     }
 
     protected void getLocation() {
-        if (locationManager != null) {
-            locationManager.get();
+        if (customLocationManager != null) {
+            customLocationManager.get();
         } else {
             throw new IllegalStateException("locationManager is null. "
                   + "Make sure you call super.onStartCommand before attempting to getLocation");

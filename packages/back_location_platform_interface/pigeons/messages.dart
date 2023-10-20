@@ -87,4 +87,8 @@ abstract class LocationHostApi {
   bool changeNotificationSettings(PigeonNotificationSettings settings);
 
   bool setBackgroundActivated(bool activated);
+
+  bool isAndroidNetworkProviderEnabled();
+
+  void promptUserToEnableAndroidNetworkProvider();
 }

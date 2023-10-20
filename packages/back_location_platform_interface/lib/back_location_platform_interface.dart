@@ -58,4 +58,10 @@ abstract class LocationPlatform extends PlatformInterface {
     bool? onTapBringToFront,
     bool? setOngoing,
   });
+
+  /// Checks if the android location NETWORK_PROVIDER is enabled
+  Future<bool> isAndroidNetworkProviderEnabled();
+
+  /// Prompts the user to enable the NETWORK_PROVIDER if it is disabled
+  Future<void> promptUserToEnableAndroidNetworkProvider();
 }

@@ -6,7 +6,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
-import com.rideamigos.back_location.location.LocationManager
+import com.rideamigos.back_location.location.CustomLocationManager
 import com.rideamigos.back_location.location.configuration.DefaultProviderConfiguration
 import com.rideamigos.back_location.location.configuration.GooglePlayServicesConfiguration
 import com.rideamigos.back_location.location.configuration.LocationConfiguration
@@ -30,7 +30,7 @@ class FlutterLocationService() : Service(),
 
     private var backgroundNotification: BackgroundNotification? = null
 
-    private var locationManager: LocationManager? = null
+    private var customLocationManager: CustomLocationManager? = null
 
     // Store result until a permission check is resolved
     public var activity: Activity? = null
@@ -62,8 +62,8 @@ class FlutterLocationService() : Service(),
     override fun onDestroy() {
         Log.d(TAG, "Destroying service.")
 
-        locationManager?.cancel()
-        locationManager = null
+        customLocationManager?.cancel()
+        customLocationManager = null
         backgroundNotification = null
 
         super.onDestroy()
@@ -84,12 +84,12 @@ class FlutterLocationService() : Service(),
                     .useDefaultProviders(DefaultProviderConfiguration.Builder().build())
                     .build()
 
-            locationManager = LocationManager.Builder(applicationContext)
+            customLocationManager = CustomLocationManager.Builder(applicationContext)
                 .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
                 .configuration(locationConfiguration)
                 .build()
 
-            locationManager?.get()
+            customLocationManager?.get()
 
             val notification = backgroundNotification!!.build()
             startForeground(ONGOING_NOTIFICATION_ID, notification)
@@ -102,7 +102,7 @@ class FlutterLocationService() : Service(),
         Log.d(TAG, "Stop service in foreground.")
         stopForeground(true)
 
-        locationManager?.cancel()
+        customLocationManager?.cancel()
 
         isForeground = false
     }
@@ -119,7 +119,7 @@ class FlutterLocationService() : Service(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         Log.d("Location", "onActivityResult")
-        locationManager?.onActivityResult(requestCode, resultCode, data)
+        customLocationManager?.onActivityResult(requestCode, resultCode, data)
         return true
     }
 

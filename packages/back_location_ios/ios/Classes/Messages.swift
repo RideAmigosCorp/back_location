@@ -285,6 +285,8 @@ protocol LocationHostApi {
   func setLocationSettings(settings: PigeonLocationSettings) throws -> Bool
   func changeNotificationSettings(settings: PigeonNotificationSettings) throws -> Bool
   func setBackgroundActivated(activated: Bool) throws -> Bool
+  func isAndroidNetworkProviderEnabled() throws -> Bool
+  func promptUserToEnableAndroidNetworkProvider() throws
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -354,6 +356,32 @@ class LocationHostApiSetup {
       }
     } else {
       setBackgroundActivatedChannel.setMessageHandler(nil)
+    }
+    let isAndroidNetworkProviderEnabledChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.LocationHostApi.isAndroidNetworkProviderEnabled", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      isAndroidNetworkProviderEnabledChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.isAndroidNetworkProviderEnabled()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      isAndroidNetworkProviderEnabledChannel.setMessageHandler(nil)
+    }
+    let promptUserToEnableAndroidNetworkProviderChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.LocationHostApi.promptUserToEnableAndroidNetworkProvider", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      promptUserToEnableAndroidNetworkProviderChannel.setMessageHandler { _, reply in
+        do {
+          try api.promptUserToEnableAndroidNetworkProvider()
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      promptUserToEnableAndroidNetworkProviderChannel.setMessageHandler(nil)
     }
   }
 }
