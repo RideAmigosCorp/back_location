@@ -7,7 +7,7 @@ import android.content.Intent;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 
-import com.rideamigos.back_location.location.LocationManager;
+import com.rideamigos.back_location.location.CustomLocationManager;
 import com.rideamigos.back_location.location.configuration.LocationConfiguration;
 import com.rideamigos.back_location.location.helper.LogUtils;
 import com.rideamigos.back_location.location.listener.LocationListener;
@@ -23,7 +23,7 @@ public abstract class LocationProvider {
     private WeakReference<LocationListener> weakLocationListener;
 
     /**
-     * This method is called immediately once the LocationProvider is set to {@linkplain LocationManager}
+     * This method is called immediately once the LocationProvider is set to {@linkplain CustomLocationManager}
      */
     @CallSuper
     public void configure(ContextProcessor contextProcessor, LocationConfiguration configuration,

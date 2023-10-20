@@ -1,6 +1,6 @@
 name: back_location
 description: This library aims at providing you a simple way to get the users background location
-version: 1.0.0
+version: 1.1.0
 publish_to: none
 
 environment:

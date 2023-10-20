@@ -1,6 +1,6 @@
 name: back_location_android
 description: Android implementation of the location plugin
-version: 1.0.0
+version: 1.1.0
 publish_to: none
 
 environment:

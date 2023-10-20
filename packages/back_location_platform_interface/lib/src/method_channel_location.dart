@@ -78,4 +78,14 @@ class MethodChannelLocation extends LocationPlatform {
       ),
     );
   }
+
+  @override
+  Future<bool> isAndroidNetworkProviderEnabled() {
+    return _api.isAndroidNetworkProviderEnabled();
+  }
+
+  @override
+  Future<void> promptUserToEnableAndroidNetworkProvider() {
+    return _api.promptUserToEnableAndroidNetworkProvider();
+  }
 }

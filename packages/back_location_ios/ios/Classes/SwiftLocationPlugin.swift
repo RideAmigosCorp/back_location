@@ -139,6 +139,17 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
   func changeNotificationSettings(settings: PigeonNotificationSettings) throws -> Bool {
     return true
   }
+  
+    // Not applicable to iOS
+  func isAndroidNetworkProviderEnabled() throws -> Bool {
+    return true
+  }
+  
+    // Not applicable to iOS
+  func promptUserToEnableAndroidNetworkProvider() throws {
+  }
+    
+
 
   func setBackgroundActivated(activated: Bool) throws -> Bool {
     SwiftLocation.allowsBackgroundLocationUpdates = activated

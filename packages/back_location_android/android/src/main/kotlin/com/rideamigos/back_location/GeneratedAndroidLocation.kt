@@ -269,6 +269,8 @@ interface LocationHostApi {
   fun setLocationSettings(settings: PigeonLocationSettings): Boolean
   fun changeNotificationSettings(settings: PigeonNotificationSettings): Boolean
   fun setBackgroundActivated(activated: Boolean): Boolean
+  fun isAndroidNetworkProviderEnabled(): Boolean
+  fun promptUserToEnableAndroidNetworkProvider()
 
   companion object {
     /** The codec used by LocationHostApi. */
@@ -343,6 +345,39 @@ interface LocationHostApi {
             var wrapped: List<Any?>
             try {
               wrapped = listOf<Any?>(api.setBackgroundActivated(activatedArg))
+            } catch (exception: Throwable) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.LocationHostApi.isAndroidNetworkProviderEnabled", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            var wrapped: List<Any?>
+            try {
+              wrapped = listOf<Any?>(api.isAndroidNetworkProviderEnabled())
+            } catch (exception: Throwable) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.LocationHostApi.promptUserToEnableAndroidNetworkProvider", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            var wrapped: List<Any?>
+            try {
+              api.promptUserToEnableAndroidNetworkProvider()
+              wrapped = listOf<Any?>(null)
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
             }
